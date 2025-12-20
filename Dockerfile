@@ -1,38 +1,44 @@
-# ============================================================================
-# Stage 1: Frontend Build
-# ============================================================================
-FROM node:20-slim AS frontend
-WORKDIR /app
-COPY package.json package-lock.json* ./
-COPY frontend/package.json ./frontend/
-RUN npm ci --no-audit --no-fund --quiet
-COPY frontend ./frontend
-RUN npm run build --workspace=frontend
+# syntax=docker/dockerfile:1
 
 # ============================================================================
-# Stage 2: Backend Build (with build tools for native modules)
+# Unified Build Stage
 # ============================================================================
-FROM node:20-slim AS backend-build
+FROM node:20-slim AS builder
 WORKDIR /app
 
-# Install build dependencies for better-sqlite3 (native module compilation)
+# Install build tools for native modules (better-sqlite3)
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy package files and install dependencies (this compiles better-sqlite3)
+# Copy configuration files
 COPY package.json package-lock.json* ./
+COPY frontend/package.json ./frontend/
 COPY backend/package.json ./backend/
-RUN npm ci --no-audit --no-fund --quiet
+
+# Install ALL dependencies (frontend + backend) in one go
+# Use cache mount to speed up repeated builds
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --quiet --no-audit --no-fund
+
+# Copy source code
+COPY . .
+
+# Build Frontend
+RUN npm run build --workspace=frontend
+
+# Prune dev dependencies to prepare for production
+# This keeps only production dependencies for backend
+RUN npm prune --production --no-audit --no-fund
 
 # ============================================================================
-# Stage 3: Final Runtime Image (no build tools)
+# Final Runtime Image
 # ============================================================================
-FROM node:20-slim AS backend
+FROM node:20-slim AS runner
 
-# Labels for metadata
+# Labels
 LABEL org.opencontainers.image.title="Local Notes MCP"
 LABEL org.opencontainers.image.description="A simple note-taking application with MCP (Model Context Protocol) integration"
 LABEL org.opencontainers.image.source="https://github.com/mchen-lab/local-notes-mcp"
@@ -41,32 +47,30 @@ LABEL org.opencontainers.image.authors="Michael Chen (@mchen-lab)"
 
 WORKDIR /app
 
-# Install only runtime dependencies (curl for health checks)
+# Install runtime dependencies
 RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy compiled node_modules from build stage
-COPY --from=backend-build /app/node_modules ./node_modules
+# Copy processed node_modules from builder
+COPY --from=builder /app/node_modules ./node_modules
 
-# Copy source code and build artifacts
+# Copy source code and artifacts
 COPY backend ./backend
-COPY --from=frontend /app/frontend/dist ./frontend/dist
+COPY --from=builder /app/frontend/dist ./frontend/dist
 COPY docker-entrypoint.sh ./
 
-# Set up data directory and permissions
+# Setup permissions
 RUN mkdir -p /app/data && \
     chmod +x /app/docker-entrypoint.sh && \
     chown -R node:node /app
 
-# Use non-root user 'node'
 USER node
 
 ENV PORT=31111
 ENV NODE_ENV=production
 EXPOSE 31111
 
-# Healthcheck to verify the server is responding
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:${PORT}/api/notes || exit 1
 
