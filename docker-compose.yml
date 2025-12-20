@@ -1,0 +1,12 @@
+services:
+  app:
+    image: mchen-lab/local-notes-mcp:latest
+    container_name: local-notes-mcp
+    ports:
+      - "31111:31111"
+    volumes:
+      - local_notes_mcp_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  local_notes_mcp_data:

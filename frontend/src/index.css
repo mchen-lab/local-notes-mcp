@@ -1,0 +1,428 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Mobile-responsive split pane for editor */
+.split-pane-container {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 640px) {
+  .split-pane-container {
+    display: grid;
+  }
+}
+
+.split-pane-editor {
+  flex: 1;
+  min-height: 0;
+}
+
+.split-pane-preview {
+  flex: 1;
+  min-height: 0;
+}
+
+.split-pane-handle {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .split-pane-editor,
+  .split-pane-preview {
+    flex: none;
+    height: 100%;
+  }
+  
+  .split-pane-handle {
+    display: flex;
+  }
+}
+
+/* Note favorite star toggle */
+.note-favorite-star {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+  flex-shrink: 0;
+}
+
+.note-favorite-star:hover {
+  background: rgba(10, 132, 255, 0.08);
+}
+
+.star-icon {
+  width: 18px;
+  height: 18px;
+  transition: all 0.15s ease;
+}
+
+.star-filled {
+  color: #ffc107;
+  fill: #ffc107;
+}
+
+.star-outline {
+  color: hsl(var(--muted-foreground));
+  opacity: 0.4;
+  stroke-width: 1.5;
+}
+
+/* Markdown body styles */
+.markdown-body {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: hsl(var(--foreground));
+}
+
+.markdown-body h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 1.5rem 0 1rem;
+  letter-spacing: -0.01em;
+}
+
+.markdown-body h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.75rem;
+}
+
+.markdown-body h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+
+.markdown-body h4, .markdown-body h5, .markdown-body h6 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.markdown-body p {
+  margin: 0.75rem 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.markdown-body strong {
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.markdown-body em {
+  font-style: italic;
+}
+
+/* Lists */
+.markdown-body ul, .markdown-body ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.markdown-body ul {
+  list-style-type: disc;
+}
+
+.markdown-body ol {
+  list-style-type: decimal;
+}
+
+.markdown-body li {
+  margin: 0.25rem 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.markdown-body li > ul, .markdown-body li > ol {
+  margin: 0.25rem 0;
+}
+
+/* Nested lists */
+.markdown-body ul ul {
+  list-style-type: circle;
+}
+
+.markdown-body ul ul ul {
+  list-style-type: square;
+}
+
+/* Blockquotes */
+.markdown-body blockquote {
+  margin: 1rem 0;
+  padding: 0.5rem 1rem;
+  border-left: 4px solid hsl(var(--primary));
+  background: hsl(var(--muted) / 0.3);
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.markdown-body blockquote p {
+  margin: 0.25rem 0;
+}
+
+/* Horizontal rules */
+.markdown-body hr {
+  border: 0;
+  border-top: 1px solid hsl(var(--border));
+  margin: 2rem 0;
+}
+
+/* Images */
+.markdown-body img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Tables */
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+  overflow: hidden;
+  border-radius: 0.625rem;
+  border: 1px solid hsl(var(--border));
+}
+
+.markdown-body thead {
+  background: hsl(var(--muted) / 0.5);
+}
+
+.markdown-body th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  border-bottom: 2px solid hsl(var(--border));
+  border-right: 1px solid hsl(var(--border));
+}
+
+.markdown-body th:last-child {
+  border-right: none;
+}
+
+.markdown-body td {
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+  color: hsl(var(--muted-foreground));
+  border-right: 1px solid hsl(var(--border));
+}
+
+.markdown-body td:last-child {
+  border-right: none;
+}
+
+.markdown-body tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.markdown-body tbody tr:hover {
+  background: hsl(var(--accent) / 0.1);
+}
+
+/* Inline code */
+.markdown-body code:not(pre code) {
+  background: hsl(var(--muted) / 0.5);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+/* Code blocks */
+.markdown-body pre {
+  background: hsl(var(--muted) / 0.3);
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.markdown-body pre code {
+  background: transparent;
+  padding: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Links */
+.markdown-body a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown-body a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* Mermaid diagrams */
+.markdown-body .mermaid-card {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark mode mermaid adjustments */
+.dark .markdown-body .mermaid-card {
+  background: hsl(var(--card));
+}
+
+/* Task lists (GFM) */
+.markdown-body input[type="checkbox"] {
+  margin-right: 0.5rem;
+  accent-color: hsl(var(--primary));
+}
+
+/* Definition lists */
+.markdown-body dl {
+  margin: 1rem 0;
+}
+
+.markdown-body dt {
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.markdown-body dd {
+  margin-left: 1.5rem;
+  color: hsl(var(--muted-foreground));
+}
+
+@media print {
+  @page {
+    margin: 2cm;
+  }
+
+  /* Reset global layout constraints */
+  html, body, #root {
+    height: auto !important;
+    overflow: visible !important;
+    width: 100% !important;
+    position: static !important;
+  }
+
+  /* Reset MainLayout containers */
+  main,
+  div[class*="flex h-screen"],
+  div[class*="overflow-hidden"] {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    position: static !important;
+  }
+
+  /* Reset ScrollArea */
+  [data-radix-scroll-area-root],
+  [data-radix-scroll-area-viewport] {
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  /* Ensure content takes full width and is visible */
+  .markdown-body {
+    width: 100% !important;
+    max-width: none !important;
+    color: black !important;
+    overflow: visible !important;
+  }
+
+  /* Hide scrollbars in print */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Specific overrides for NoteDetail structure */
+  /* Remove .flex-col override as it un-hides hidden elements */
+  
+  /* Explicitly hide the sidebar and other elements marked hidden */
+  aside, 
+  .print\:hidden {
+    display: none !important;
+  }
+}

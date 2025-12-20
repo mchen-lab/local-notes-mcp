@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run backend tests
+      run: npm test
+
+    - name: Build frontend
+      run: npm run build --workspace=frontend
+
+    - name: Check for build errors
+      run: |
+        if [ ! -d "frontend/dist" ]; then
+          echo "Frontend build failed - dist directory not created"
+          exit 1
+        fi
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build Docker image
+      run: docker build -t local-notes-mcp .
+
+    - name: Test Docker image starts
+      run: |
+        docker run -d --name test-container -p 31111:31111 local-notes-mcp web
+        sleep 5
+        curl --fail http://localhost:31111 || exit 1
+        docker stop test-container
+        docker rm test-container

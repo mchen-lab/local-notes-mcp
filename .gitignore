@@ -1,0 +1,42 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+coverage/
+.parcel-cache/
+.vite/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Env files
+.env
+.env.*
+frontend/.env*
+backend/.env*
+mcp-server/.env*
+
+# Editor/IDE
+.vscode/
+.idea/
+.cursor/
+
+# App data
+data/
+backend/data/
+admin_api_key.txt
+local_notes_mcp.db
+cookies.txt
+
+# Docker
+.docker/

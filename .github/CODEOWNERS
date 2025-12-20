@@ -1,0 +1,15 @@
+# Default code owners for all files
+* @mchen-lab
+
+# Backend code
+/backend/ @mchen-lab
+
+# Frontend code
+/frontend/ @mchen-lab
+
+# Docker and deployment
+Dockerfile @mchen-lab
+docker-compose.yml @mchen-lab
+
+# Documentation
+*.md @mchen-lab

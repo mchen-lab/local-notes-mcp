@@ -1,0 +1,71 @@
+# Git
+.git
+.gitignore
+
+# Node modules (will be installed in container)
+node_modules
+**/node_modules
+
+# Build artifacts
+frontend/dist
+*.log
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+data/
+local_notes_mcp.db
+database.db
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Documentation
+*.md
+!README.md
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+*.tmp
+
+# Service files
+*.service
+restart.sh
+uninstall-service.sh
+
+# Docker files (don't copy into itself)
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Reference files
+docker-mcp-reference.yaml
+my-catalog.yaml
+
+# Screenshots/assets
+assets/
+*.png
+*.jpg
+*.jpeg
+
+# Patch files
+*.patch
+
+
+
+
+

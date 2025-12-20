@@ -1,0 +1,213 @@
+* { box-sizing: border-box }
+html, body, #root { height: 100% }
+:root {
+  --bg: #f5f5f7;
+  --surface: rgba(255,255,255,0.7);
+  --sidebar-surface: rgba(246,246,248,0.7);
+  --border: rgba(60,60,67,0.29);
+  --text: #1c1c1e;
+  --muted: #6b6b73;
+  --accent: #0a84ff;
+  --focus-ring: rgba(10,132,255,0.35);
+  --shadow: 0 12px 30px rgba(0,0,0,0.12);
+  --header-surface: rgba(255,255,255,0.85);
+  --dialog-bg: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1e;
+    --surface: rgba(28,28,30,0.7);
+    --sidebar-surface: rgba(36,36,38,0.7);
+    --border: rgba(255,255,255,0.18);
+    --text: #f2f2f7;
+    --muted: #8e8e93;
+    --accent: #0a84ff;
+    --focus-ring: rgba(10,132,255,0.55);
+    --shadow: 0 24px 44px rgba(0,0,0,0.5);
+    --header-surface: rgba(28,28,30,0.85);
+    --dialog-bg: #2c2c2e;
+  }
+}
+body { margin: 0; font-family: Inter, -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text) }
+.app { display: flex; flex-direction: column; height: 100% }
+.toolbar { position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; border-bottom: 1px solid var(--border); background: var(--surface); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px) }
+.toolbar .title { font-weight: 600; color: var(--text) }
+.toolbar .mcp { padding: 6px 10px }
+.layout { display: grid; grid-template-columns: auto 12px 1fr; height: calc(100% - 44px) }
+.sidebar { border-right: none; overflow: auto; background: var(--sidebar-surface); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px) }
+.main { overflow: auto }
+.split { display: grid; grid-template-columns: 1fr 12px 1fr; height: 100%; overflow: hidden }
+.editor { border-right: 1px solid var(--border); overflow: hidden; height: 100% }
+.split .editor { border-right: none }
+.preview { display: flex; flex-direction: column; height: 100%; overflow: hidden }
+.layout-handle { cursor: col-resize; background: transparent; position: relative; z-index: 1 }
+.layout-handle::after { content: ""; position: absolute; top: 0; bottom: 0; left: 4px; right: 4px; border-left: 1px solid var(--border); border-right: 1px solid var(--border) }
+.layout-handle:hover { background: rgba(10,132,255,0.08) }
+.layout-handle:active { background: rgba(10,132,255,0.12) }
+.notes-header { display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 44px; border-bottom: 1px solid var(--border); background: var(--header-surface) }
+.notes-header .search { position: relative; flex: 1; min-width: 0 }
+.notes-header .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px }
+.search-input { flex: 1; width: 100%; height: 30px; padding: 0 32px 0 32px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text) }
+.notes-header .search-clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); width: 18px; height: 18px; cursor: pointer }
+.notes-header .search-clear:hover { color: var(--text) }
+.search-input:focus { outline: 3px solid var(--focus-ring) }
+.notes-list ul { list-style: none; padding: 0; margin: 0 }
+.notes-list li { padding: 10px 12px; border-bottom: 1px solid rgba(60,60,67,0.12); cursor: pointer; border-radius: 10px; margin: 2px 8px; display: flex; align-items: center; justify-content: space-between; gap: 8px }
+.notes-list li.active { background: rgba(10,132,255,0.14) }
+.note-item-content { flex: 1; min-width: 0 }
+.note-title { font-weight: 500; margin-bottom: 4px }
+.note-time { color: var(--muted); font-size: 12px }
+.note-favorite-star { display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 4px; border-radius: 4px; transition: background 0.15s ease; flex-shrink: 0 }
+.note-favorite-star:hover { background: rgba(10,132,255,0.08) }
+.star-icon { width: 18px; height: 18px; transition: all 0.15s ease }
+.star-filled { color: #ffc107; fill: #ffc107 }
+.star-outline { color: var(--muted); opacity: 0.4; stroke-width: 1.5 }
+.notes-filter { padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--header-surface) }
+.favor-only-checkbox { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: var(--text); user-select: none }
+.favor-only-checkbox input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent) }
+.favor-only-checkbox span { color: var(--text) }
+.notes-list .month-divider { padding: 6px 12px; margin: 8px 8px 4px; border: none; color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px }
+.notes-list .month-divider .month-label { letter-spacing: 0.02em }
+.notes-list .month-divider .month-left { display: inline-flex; align-items: center; gap: 8px }
+.notes-list .month-divider .month-right { display: inline-flex; align-items: center; gap: 8px }
+.notes-list .month-divider .month-count { min-width: 24px; height: 20px; padding: 0 8px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-size: 12px; display: inline-flex; align-items: center; justify-content: center }
+.notes-list .month-divider .month-arrow { color: var(--muted); width: 16px; height: 16px }
+.editor-pane { display: flex; flex-direction: column; height: 100%; overflow: auto }
+.editor-header { position: sticky; top: 0; display: flex; align-items: flex-start; gap: 12px; padding: 8px 12px; min-height: 44px; border-bottom: 1px solid var(--border); background: var(--header-surface); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); z-index: 10 }
+.title-input { display: none }
+.title-textarea { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); font-family: inherit; font-size: 16px; font-weight: 400; line-height: 1.5; resize: none; min-height: 60px; overflow: hidden }
+.title-textarea:focus { outline: 3px solid var(--focus-ring) }
+.editor-actions { display: flex; flex-direction: column; gap: 8px; align-self: stretch; justify-content: center }
+.content-input { flex: 1; width: 100%; height: 100%; padding: 12px; border: none; border-radius: 0; outline: none; resize: none; background: transparent; color: var(--text) }
+.content-input:focus { outline: none; background: rgba(10,132,255,0.06) }
+.preview-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 12px; height: 44px; border-bottom: 1px solid var(--border); font-weight: 500; background: var(--header-surface) }
+.preview-header.edit { padding: 8px 12px; min-height: var(--editor-header-height, 60px) }
+.preview-header .preview-meta { color: var(--muted); font-size: 12px }
+.preview-body { padding: 24px; overflow-y: auto; position: relative; flex: 1 }
+.markdown { max-width: 64rem; margin: 0 auto }
+.markdown h1 { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.01em }
+.markdown h2 { font-size: 1.5rem; font-weight: 600 }
+.markdown h3 { font-size: 1.25rem; font-weight: 600 }
+.markdown p { font-size: 1rem; line-height: 1.75; color: var(--muted) }
+.markdown hr { border: 0; border-top: 1px solid var(--border); margin: 2rem 0 }
+.markdown img { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow) }
+.markdown pre { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; overflow: auto }
+.markdown code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace }
+.markdown table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; overflow: hidden; border-radius: 10px; border: 1px solid var(--border) }
+.markdown table thead { background: var(--surface); border-bottom: 2px solid var(--border) }
+.markdown table th { padding: 12px 16px; text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border) }
+.markdown table td { padding: 10px 16px; border-bottom: 1px solid var(--border); color: var(--muted) }
+.markdown table tbody tr:last-child td { border-bottom: none }
+.markdown table tbody tr:hover { background: rgba(10,132,255,0.06) }
+.markdown table th:not(:last-child), .markdown table td:not(:last-child) { border-right: 1px solid var(--border) }
+.dialog-backdrop { position: fixed; inset: 0; background: transparent; display: flex; align-items: center; justify-content: center; z-index: 1000 }
+.dialog { background: var(--dialog-bg); width: 640px; max-width: 95vw; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); position: relative; z-index: 1001 }
+.dialog-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--border) }
+.dialog-body { padding: 12px; max-height: 50vh; overflow: auto }
+.dialog-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border) }
+
+button { appearance: none; border: 1px solid var(--border); background: rgba(255,255,255,0.6); color: var(--text); border-radius: 10px; padding: 6px 12px; font-size: 14px; cursor: pointer; transition: transform 0.05s ease, background 0.15s ease, box-shadow 0.15s ease }
+button:hover { background: rgba(255,255,255,0.8) }
+button:active { transform: translateY(1px) }
+button:disabled { opacity: 0.6; cursor: default }
+
+.btn { appearance: none; border: 1px solid var(--border); background: rgba(255,255,255,0.6); color: var(--text); border-radius: 10px; padding: 6px 12px; font-size: 14px; cursor: pointer; transition: transform 0.05s ease, background 0.15s ease, box-shadow 0.15s ease }
+.btn:hover { background: rgba(255,255,255,0.8) }
+.btn:active { transform: translateY(1px) }
+.btn:disabled { opacity: 0.6; cursor: default }
+.btn-accent { background: var(--accent); color: #fff; border: 1px solid transparent }
+.btn-accent:hover { background: #0b7bf0 }
+.btn-destructive { background: #ff3b30; color: #fff; border: 1px solid transparent }
+.btn-destructive:hover { background: #e2332a }
+.btn-ghost { background: transparent; border-color: var(--border) }
+.icon-btn { appearance: none; border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.05s ease; line-height: 0 }
+.icon-btn:hover { border-color: var(--border) }
+.icon-btn:active { transform: translateY(1px) }
+.icon-btn:disabled { opacity: 0.6; cursor: default }
+.icon-btn svg { width: 18px; height: 18px; display: block }
+.icon-btn-accent { color: var(--accent) }
+.icon-btn-destructive { color: #ff3b30 }
+.icon-btn-ghost { background: transparent; border-color: var(--border) }
+.action-icon { width: 22px; height: 22px; display: inline-block; cursor: pointer }
+.action-icon-accent { color: var(--accent) }
+.action-icon-destructive { color: #ff3b30 }
+.action-icon[aria-disabled="true"] { opacity: 0.5; pointer-events: none }
+.split-handle { cursor: col-resize; background: transparent; position: relative; z-index: 1 }
+.split-handle::after { content: ""; position: absolute; top: 0; bottom: 0; left: 4px; right: 4px; border-left: 1px solid var(--border); border-right: 1px solid var(--border) }
+.split-handle:hover { background: rgba(10,132,255,0.08) }
+.split-handle:active { background: rgba(10,132,255,0.12) }
+.markdown .mermaid-card { margin-top: 12px; padding: 16px; background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow) }
+.floating-actions { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 12px; z-index: 100 }
+.floating-action-btn { width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); box-shadow: var(--shadow); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; color: var(--text) }
+.floating-action-btn:hover { background: var(--accent); color: white; transform: scale(1.1); box-shadow: 0 16px 40px rgba(0,0,0,0.2) }
+.floating-action-btn:active { transform: scale(0.95) }
+.floating-action-btn-accent { color: var(--accent) }
+.floating-action-btn-accent:hover { background: var(--accent); color: white }
+.floating-action-btn-destructive { color: #ff3b30 }
+.floating-action-btn-destructive:hover { background: #ff3b30; color: white }
+.floating-action-icon { width: 20px; height: 20px }
+.floating-toast { position: absolute; bottom: 0; right: 64px; background: var(--text); color: var(--bg); padding: 8px 16px; border-radius: 8px; font-size: 14px; white-space: nowrap; box-shadow: var(--shadow); animation: fadeInOut 2s ease-in-out }
+@keyframes fadeInOut { 0% { opacity: 0; transform: translateY(10px) } 10% { opacity: 1; transform: translateY(0) } 90% { opacity: 1; transform: translateY(0) } 100% { opacity: 0; transform: translateY(10px) } }
+
+/* Print styles - optimized for markdown printing */
+@media print {
+  /* Hide sidebar and UI elements */
+  .toolbar,
+  .sidebar,
+  .layout-handle,
+  .split-handle,
+  .editor,
+  .preview-header,
+  .floating-actions {
+    display: none !important;
+  }
+
+  /* Make layout full width */
+  .layout {
+    display: block !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .main,
+  .split {
+    display: block !important;
+  }
+
+  .preview {
+    display: block !important;
+  }
+
+  .preview-body {
+    padding: 0 !important;
+  }
+
+  /* Page break controls for better formatting */
+  .markdown h1,
+  .markdown h2,
+  .markdown h3,
+  .markdown h4,
+  .markdown h5,
+  .markdown h6 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .markdown pre,
+  .markdown table,
+  .markdown img,
+  .markdown .mermaid-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Avoid widows and orphans */
+  .markdown p {
+    widows: 3;
+    orphans: 3;
+  }
+
+  /* Clean backgrounds for print */
+  body {
+    background: white !important;
+  }
+}

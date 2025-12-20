@@ -1,0 +1,22 @@
+--- a/frontend/src/App.jsx
++++ b/frontend/src/App.jsx
+@@ -407,11 +407,13 @@
+               </button>
+             </>
+           )}
+-          <button
+-            className="mcp btn btn-ghost"
+-            onClick={() => setShowConfig(true)}
+-          >
+-            mcp config
+-          </button>
++          {currentUser && (
++            <button
++              className="mcp btn btn-ghost"
++              onClick={() => setShowConfig(true)}
++            >
++              mcp config
++            </button>
++          )}
+         </div>
+       </div>
