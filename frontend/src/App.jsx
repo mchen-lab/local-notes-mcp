@@ -12,6 +12,7 @@ export default function App() {
   const [notes, setNotes] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [mobileView, setMobileView] = useState("list"); // 'list' | 'detail'
+  const [isFullScreen, setIsFullScreen] = useState(false);
   
   // UI State
   const [searchTerm, setSearchTerm] = useState("");
@@ -636,6 +637,7 @@ export default function App() {
     <>
       <MainLayout
         mobileView={mobileView}
+        isFullScreen={isFullScreen}
         sidebar={
           <SidebarContent
             notes={filteredNotes}
@@ -667,6 +669,8 @@ export default function App() {
           onAutoEditHandled={() => setAutoEdit(false)}
           setIsUnsaved={setIsUnsaved}
           onDiscardNew={discardNewNote}
+          isFullScreen={isFullScreen}
+          onToggleFullScreen={() => setIsFullScreen(!isFullScreen)}
         />
       </MainLayout>
       

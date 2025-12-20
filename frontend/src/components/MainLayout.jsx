@@ -9,14 +9,19 @@ export default function MainLayout({
   children, 
   sidebar, 
   className,
-  mobileView = 'list' 
+  mobileView = 'list',
+  isFullScreen = false
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <div className={cn("flex h-screen w-full bg-background overflow-hidden", className)}>
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-[350px] flex-col border-r bg-muted/10 print:hidden">
+      {/* Desktop Sidebar */}
+      <aside className={cn(
+        "hidden w-[350px] flex-col border-r bg-muted/10 print:hidden",
+        !isFullScreen && "md:flex"
+      )}>
         <ScrollArea className="h-full">
           {sidebar}
         </ScrollArea>

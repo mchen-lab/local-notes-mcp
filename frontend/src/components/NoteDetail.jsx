@@ -19,7 +19,9 @@ import {
   X,
   Printer,
   Copy,
-  Download
+  Download,
+  Maximize2,
+  Minimize2
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -119,7 +121,9 @@ export default function NoteDetail({
   autoEdit,
   onAutoEditHandled,
   setIsUnsaved,
-  onDiscardNew
+  onDiscardNew,
+  isFullScreen,
+  onToggleFullScreen
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState("");
@@ -426,6 +430,17 @@ export default function NoteDetail({
                  )}
                </DropdownMenuContent>
              </DropdownMenu>
+             {onToggleFullScreen && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={onToggleFullScreen}
+                  className="hidden md:flex ml-2"
+                  title={isFullScreen ? "Exit Full Screen" : "Enter Full Screen"}
+                >
+                  {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+                </Button>
+             )}
           </div>
         </div>
 
@@ -469,6 +484,17 @@ export default function NoteDetail({
              <Button size="sm" onClick={handleSave} className="gap-2">
                <Save className="h-4 w-4" /> Save
              </Button>
+             {onToggleFullScreen && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={onToggleFullScreen}
+                  className="hidden md:flex"
+                  title={isFullScreen ? "Exit Full Screen" : "Enter Full Screen"}
+                >
+                  {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+                </Button>
+             )}
          </div>
       </div>
 
