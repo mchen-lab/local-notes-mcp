@@ -5,7 +5,7 @@ FROM node:20-slim AS frontend
 WORKDIR /app
 COPY package.json package-lock.json* ./
 COPY frontend/package.json ./frontend/
-RUN npm install
+RUN npm ci --no-audit --no-fund --quiet
 COPY frontend ./frontend
 RUN npm run build --workspace=frontend
 
@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y \
 # Copy package files and install dependencies (this compiles better-sqlite3)
 COPY package.json package-lock.json* ./
 COPY backend/package.json ./backend/
-RUN npm install
+RUN npm ci --no-audit --no-fund --quiet
 
 # ============================================================================
 # Stage 3: Final Runtime Image (no build tools)
