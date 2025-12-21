@@ -3,25 +3,12 @@
 # ============================================================================
 # Unified Build Stage
 # ============================================================================
-FROM node:20-slim AS builder
+ARG BASE_IMAGE=ghcr.io/mchen-lab/local-notes-mcp:base
+FROM ${BASE_IMAGE} AS builder
 WORKDIR /app
 
-# Install build tools for native modules (better-sqlite3)
-RUN apt-get update && apt-get install -y \
-    python3 \
-    make \
-    g++ \
-    && rm -rf /var/lib/apt/lists/*
+# Note: Dependencies and system tools are already installed in the base image.
 
-# Copy configuration files
-COPY package.json package-lock.json* ./
-COPY frontend/package.json ./frontend/
-COPY backend/package.json ./backend/
-
-# Install ALL dependencies (frontend + backend) in one go
-# Use cache mount to speed up repeated builds
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci --quiet --no-audit --no-fund
 
 # Copy source code
 COPY . .
