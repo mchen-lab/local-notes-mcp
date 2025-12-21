@@ -19,6 +19,7 @@ import {
   X,
   Printer,
   Copy,
+  Check,
   Download,
   Maximize2,
   Minimize2
@@ -133,6 +134,8 @@ export default function NoteDetail({
   const scrollContainerRef = useRef(null);
   const splitRef = useRef(null);
   const textareaRef = useRef(null);
+
+  const [isCopied, setIsCopied] = useState(false);
 
   const lastNoteIdRef = useRef(null);
   const lastNoteUpdatedRef = useRef(null);
@@ -349,7 +352,29 @@ export default function NoteDetail({
     }
   };
 
-  const handleCopy = () => { /* ... */ navigator.clipboard.writeText(content); };
+  const handleCopy = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(content);
+      } else {
+        // Fallback for older browsers or non-secure contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = content;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      // Optional: show error toast here if you had one
+    }
+  };
   const handleExport = () => { /* ... */ 
     const blob = new Blob([content], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
@@ -397,6 +422,9 @@ export default function NoteDetail({
              <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)} disabled={!currentUser}>
                <Pencil className="h-5 w-5" />
              </Button>
+             <Button variant="ghost" size="icon" onClick={handleCopy}>
+                {isCopied ? <Check className="h-5 w-5 text-green-500" /> : <Copy className="h-5 w-5" />}
+             </Button>
              <DropdownMenu>
                <DropdownMenuTrigger asChild>
                  <Button variant="ghost" size="icon">
@@ -404,9 +432,6 @@ export default function NoteDetail({
                  </Button>
                </DropdownMenuTrigger>
                <DropdownMenuContent align="end">
-                 <DropdownMenuItem onClick={handleCopy}>
-                   <Copy className="mr-2 h-4 w-4" /> Copy Text
-                 </DropdownMenuItem>
                  <DropdownMenuItem onClick={handleExport}>
                    <Download className="mr-2 h-4 w-4" /> Export MD
                  </DropdownMenuItem>

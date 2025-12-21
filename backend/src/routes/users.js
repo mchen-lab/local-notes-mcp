@@ -35,7 +35,7 @@ router.get("/current", (req, res) => {
   const isSuperAdmin = superAdminId && user.id === superAdminId;
 
   res.json({ ...user, is_super_admin: isSuperAdmin } || null);
-  res.json({ ...user, is_super_admin: isSuperAdmin } || null);
+
 });
 
 const MAX_USERNAME_LENGTH = 16;
