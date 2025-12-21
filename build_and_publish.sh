@@ -35,6 +35,7 @@ echo "  - $DOCKERHUB_IMAGE:$TAG"
 
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
+  --build-arg BASE_IMAGE=ghcr.io/mchen-lab/local-notes-mcp:base \
   -t "$GHCR_IMAGE:$TAG" \
   -t "$DOCKERHUB_IMAGE:$TAG" \
   --push \

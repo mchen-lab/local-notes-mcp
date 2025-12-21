@@ -8,11 +8,6 @@ As an administrator, you have access to powerful management features.
 
 Access via **Settings > Users** tab:
 
-### Impersonate Users 🎭
-View the app exactly as another user sees it:
-1. Click **Impersonate** next to any user
-2. Browse as that user
-3. Click **Revert** in the banner to return
 
 ### Edit Users ✏️
 - Change username or password
@@ -58,7 +53,6 @@ You are the **Super Admin** (first registered user):
 
 | Action | Location | What it does |
 | :--- | :--- | :--- |
-| Impersonate | Users tab | View as user |
 | Edit User | Users tab | Change credentials |
 | Delete User | Users tab | Remove user + notes |
 | Merge | Users tab | Combine users |

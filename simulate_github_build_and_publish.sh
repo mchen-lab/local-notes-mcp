@@ -40,6 +40,7 @@ START_TIME=$(date +%s)
 
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
+  --build-arg BASE_IMAGE=ghcr.io/mchen-lab/local-notes-mcp:base \
   --tag $IMAGE_NAME \
   --push \
   --progress=plain \
