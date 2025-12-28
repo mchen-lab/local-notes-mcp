@@ -125,15 +125,14 @@ Copy the config for your AI agent and paste it into the `mcpServers` section of 
 
 **Stdio (Recommended):**
 ```bash
-claude mcp add notes-mcp \
-  --command "npx" \
-  --args "-y" "@gonzaloafidalgo/mcp-sse-bridge" "{{BASE_URL}}/mcp/{{API_KEY}}"
+claude mcp add notes-mcp --transport stdio -- npx -y @gonzaloafidalgo/mcp-sse-bridge {{BASE_URL}}/mcp/{{API_KEY}}
 ```
 
 **SSE:**
 ```bash
-claude mcp add notes-mcp --transport sse --url {{BASE_URL}}/mcp/{{API_KEY}}
+claude mcp add notes-mcp --transport sse {{BASE_URL}}/mcp/{{API_KEY}}
 ```
+
 
 Or edit `~/.claude/settings.json` manually with the JSON configs above.
 
