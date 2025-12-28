@@ -43,8 +43,25 @@ claude mcp add notes-mcp --transport sse http://localhost:31111/mcp/YOUR_API_KEY
 Ask your AI agent:
 
 > "Use MCP to write a note of what we have done so far."
+ 
+ ## Screenshots
 
-## Features
+ ### Main Interface
+ ![Main Interface](assets/note_screen.png)
+ *Clean, markdown-based note editing with smart tags and search.*
+
+ ### Agent Integration
+ ![Agent Integration](assets/claudecode_add_notes.png)
+ *Seamlessly asking your AI agent to read and write notes.*
+
+ ### Easy Configuration
+ <img src="assets/mcp_config.png" width="400" alt="MCP Config" />
+ <br/>
+ *Simple setup for connecting to Claude, Cursor, and other MCP clients.*
+
+
+ ## Features
+
 
 ### Core Functionality
 - 📝 **Markdown Editor**: Full Markdown support with live preview.
