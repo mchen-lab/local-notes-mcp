@@ -99,14 +99,19 @@ function formatDateTime(dateStr) {
 }
 
 // Helper to display tags
-function TagList({ text }) {
+function TagList({ text, onTagClick }) {
   const tags = extractTags(text);
   if (tags.length === 0) return null;
   
   return (
     <div className="flex flex-wrap gap-2 mb-4">
       {tags.map(tag => (
-        <span key={tag} className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20">
+        <span 
+          key={tag} 
+          className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20 cursor-pointer hover:bg-primary/20 transition-colors"
+          onClick={() => onTagClick && onTagClick(tag)}
+          title="Click to search this tag"
+        >
           {tag}
         </span>
       ))}
@@ -125,7 +130,8 @@ export default function NoteDetail({
   setIsUnsaved,
   onDiscardNew,
   isFullScreen,
-  onToggleFullScreen
+  onToggleFullScreen,
+  onSearchTag
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState("");
@@ -520,7 +526,7 @@ export default function NoteDetail({
         >
             <div className="w-full">
               <h1 className="text-3xl font-bold mb-6 break-words">{title || "Untitled"}</h1>
-              <TagList text={content} />
+              <TagList text={content} onTagClick={onSearchTag} />
               <Separator className="my-6" />
               <div className="markdown-body">
                 <ReactMarkdown 
@@ -644,7 +650,7 @@ export default function NoteDetail({
                Preview
              </div>
              <ScrollArea className="flex-1 p-6">
-                 <TagList text={content} />
+                 <TagList text={content} onTagClick={onSearchTag} />
                  <div className="markdown-body">
                     <ReactMarkdown 
                       remarkPlugins={[remarkGfm]}

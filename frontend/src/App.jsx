@@ -700,6 +700,10 @@ export default function App() {
           onDiscardNew={discardNewNote}
           isFullScreen={isFullScreen}
           onToggleFullScreen={() => setIsFullScreen(!isFullScreen)}
+          onSearchTag={(tag) => {
+            setSearchTerm(tag);
+            setMobileView("list");
+          }}
         />
       </MainLayout>
       
