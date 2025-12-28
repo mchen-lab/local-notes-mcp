@@ -401,11 +401,15 @@ export default function SidebarContent({
                            
                            return (
                              <div className="flex items-center gap-1 ml-auto overflow-hidden">
-                                {displayTags.map(tag => (
-                                   <span key={tag} className="inline-flex items-center rounded-sm bg-primary/10 px-1 py-0.5 text-[10px] font-medium text-primary break-all">
-                                      {tag}
-                                   </span>
-                                ))}
+                                {displayTags.map(tag => {
+                                   // Truncate tag to 10 characters max
+                                   const displayTag = tag.length > 10 ? tag.slice(0, 10) + '…' : tag;
+                                   return (
+                                      <span key={tag} className="inline-flex items-center rounded-sm bg-primary/10 px-1 py-0.5 text-[10px] font-medium text-primary" title={tag}>
+                                         {displayTag}
+                                      </span>
+                                   );
+                                })}
                                 {hasMore && <span className="text-[10px] opacity-70">+{tags.length - 3}</span>}
                              </div>
                            );
