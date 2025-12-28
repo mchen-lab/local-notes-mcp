@@ -27,12 +27,21 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Format date as YYYY/MM/DD
-function formatDateShort(dateStr) {
+// Format date based on grouping type
+// If grouped by month: show as YYYY/MM/DD
+// If grouped by day: show as YYYY/MM/DD HH:MM:SS
+function formatDateShort(dateStr, groupBy = 'month') {
   const d = new Date(dateStr);
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
+  
+  if (groupBy === 'day') {
+    const h = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${y}/${m}/${day}  ${h}:${min}`;
+  }
+  
   return `${y}/${m}/${day}`;
 }
 
@@ -112,13 +121,17 @@ export default function SidebarContent({
       // Let's keep it simple and stay in mode, but maybe clear selection if items are gone (handled by App update).
   };
   
+  // Get groupBy preference
+  const groupBy = useMemo(() => {
+    try {
+      return JSON.parse(currentUser?.settings || '{}').groupBy || 'month';
+    } catch(e) {
+      return 'month';
+    }
+  }, [currentUser]);
+
   // Group notes
   const groupedNotes = useMemo(() => {
-    let groupBy = 'month';
-    try {
-      groupBy = JSON.parse(currentUser?.settings || '{}').groupBy || 'month';
-    } catch(e) {}
-
     const groups = {};
     notes.forEach(note => {
       const d = new Date(note.createdAt);
@@ -135,7 +148,7 @@ export default function SidebarContent({
       groups[key].push(note);
     });
     return groups;
-  }, [notes, currentUser]);
+  }, [notes, groupBy]);
 
   const monthKeys = Object.keys(groupedNotes);
   const allCollapsed = monthKeys.length > 0 && monthKeys.every(m => collapsedMonths.has(m));
@@ -376,7 +389,7 @@ export default function SidebarContent({
                       </div>
 
                       <div className="flex items-center gap-2 text-xs opacity-60 mt-1">
-                        <span>{formatDateShort(note.createdAt)}</span>
+                        <span>{formatDateShort(note.createdAt, groupBy)}</span>
                         
                         {/* Tags Display */}
                         {(() => {
