@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef } from "react";
 import { Virtuoso } from 'react-virtuoso';
 import Logo from "./Logo";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,8 @@ import {
   GitBranch,
   CheckSquare,
   X,
-  MousePointer2
+  MousePointer2,
+  ArrowUp
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -71,6 +72,10 @@ export default function SidebarContent({
   // Selection Mode State
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState(new Set());
+
+  // Back to top state
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const virtuosoRef = useRef(null);
 
   const toggleSelectionMode = () => {
       setIsSelectionMode(prev => {
@@ -399,13 +404,35 @@ export default function SidebarContent({
           };
 
           return (
+            <div className="flex-1 relative">
              <Virtuoso 
-                className="flex-1"
+                ref={virtuosoRef}
+                className="h-full"
                 totalCount={flatItems.length}
                 itemContent={itemContent}
                 /* Use overscan to keep UI smooth while scrolling fast */
                 overscan={200}
+                onScroll={(e) => {
+                  const scrollTop = e.target.scrollTop;
+                  setShowBackToTop(scrollTop > 300);
+                }}
              />
+             {/* Back to Top Button */}
+             {showBackToTop && (
+               <Button
+                 variant="secondary"
+                 size="icon"
+                 className="absolute bottom-4 right-4 z-50 rounded-full shadow-lg hover:shadow-xl transition-all h-8 w-8"
+                 onClick={() => {
+                   if (virtuosoRef.current) {
+                     virtuosoRef.current.scrollToIndex({ index: 0, behavior: 'smooth' });
+                   }
+                 }}
+               >
+                 <ArrowUp className="h-4 w-4" />
+               </Button>
+             )}
+            </div>
           );
       })()}
     </div>
