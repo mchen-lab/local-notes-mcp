@@ -262,6 +262,27 @@ export function updateNote(id, { title, content, favorite }, userId) {
   return getNote(id, userId);
 }
 
+export function appendNote(id, text, userId) {
+  const existing = getNote(id, userId);
+  if (!existing) return null;
+  
+  if (!text) return existing;
+
+  const now = new Date().toISOString();
+  // Efficiently append: If existing content is not empty, add a newline before the new text
+  const separator = existing.content && existing.content.length > 0 ? "\n\n" : "";
+  const newContent = existing.content + separator + text;
+  
+  const { sql: userSql, params: userParams } = getUserFilter(userId);
+
+  const stmt = db.prepare(
+    `UPDATE notes SET content = ?, updated_at = ? WHERE id = ? AND ${userSql}`
+  );
+  stmt.run(newContent, now, id, ...userParams);
+
+  return getNote(id, userId);
+}
+
 export function toggleFavorite(id, userId) {
   const existing = getNote(id, userId);
   if (!existing) return null;

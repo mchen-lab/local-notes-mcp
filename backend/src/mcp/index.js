@@ -7,6 +7,7 @@ import {
   updateNote,
   searchNotes,
   deleteNote,
+  appendNote,
 } from "../../notesDb.js";
 
 const mcpServer = new McpServer({
@@ -117,6 +118,45 @@ mcpServer.registerTool(
       }
 
       const note = updateNote(id, updates, userId);
+      if (!note) {
+        return {
+          content: [{ type: "text", text: `Note ${id} not found` }],
+          isError: true,
+        };
+      }
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(note, null, 2),
+          },
+        ],
+      };
+    } catch (err) {
+      return {
+        content: [{ type: "text", text: `Error: ${err.message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+mcpServer.registerTool(
+  "append_note",
+  {
+    title: "Append to note",
+    description: "Append content to an existing note. Use this to add information to a specific note without overwriting it.",
+    inputSchema: {
+      id: z.number().int().positive().describe("Note ID"),
+      content: z.string().describe("Content to append"),
+    },
+  },
+  async ({ id, content }) => {
+    try {
+      const userId = userContext.getStore();
+      console.error("Appending to note with id:", id, "userId:", userId);
+
+      const note = appendNote(id, content, userId);
       if (!note) {
         return {
           content: [{ type: "text", text: `Note ${id} not found` }],
