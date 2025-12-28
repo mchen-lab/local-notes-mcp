@@ -32,7 +32,7 @@ kill_port() {
     echo "Checking for existing $process_name processes on port $port..."
     
     # use lsof to get PIDs
-    local pids=$(lsof -ti :$port 2>/dev/null)
+    local pids=$(lsof -ti :$port -sTCP:LISTEN 2>/dev/null)
     
     if [ ! -z "$pids" ]; then
         # Iterate through PIDs to check their command name
@@ -58,7 +58,7 @@ kill_port() {
             sleep 2
             
             # Verify they are killed
-            local remaining_pids=$(lsof -ti :$port 2>/dev/null)
+            local remaining_pids=$(lsof -ti :$port -sTCP:LISTEN 2>/dev/null)
             if [ ! -z "$remaining_pids" ]; then
                 echo "⚠️  Warning: Port $port may still be in use."
             else
