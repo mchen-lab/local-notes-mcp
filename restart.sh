@@ -30,48 +30,56 @@ kill_port() {
     local process_name=$2
 
     echo "Checking for existing $process_name processes on port $port..."
-    # Find processes using the port (lsof is most reliable)
+    
+    # use lsof to get PIDs
     local pids=$(lsof -ti :$port 2>/dev/null)
     
-    # Also check for npm workspace processes that might be running
-    if [ -z "$pids" ]; then
-        pids=$(pgrep -f "workspace=$process_name" 2>/dev/null || true)
-    fi
-    
-    # Also kill any node processes that might be related (server.js or the port)
-    if [ -z "$pids" ]; then
-        pids=$(pgrep -f "node.*server.js" 2>/dev/null || true)
-    fi
-    
-    # Also check for node --watch processes
-    if [ -z "$pids" ]; then
-        pids=$(pgrep -f "node --watch" 2>/dev/null || true)
-    fi
-
     if [ ! -z "$pids" ]; then
-        echo "Found existing $process_name process(es) (PIDs: $pids). Killing..."
-        echo "$pids" | xargs kill -9 2>/dev/null || true
-        sleep 2 # Give processes time to shut down
-        # Verify they are killed
-        local remaining_pids=$(lsof -ti :$port 2>/dev/null)
-        if [ ! -z "$remaining_pids" ]; then
-            echo "⚠️  Warning: Some processes on port $port may still be running. Trying again..."
-            echo "$remaining_pids" | xargs kill -9 2>/dev/null || true
+        # Iterate through PIDs to check their command name
+        local target_pids=""
+        for pid in $pids; do
+            # Get the command name for the PID
+            local cmd=$(ps -p $pid -o comm= 2>/dev/null)
+            # Check if command is node-related (basename)
+            local cmd_base=$(basename "$cmd" 2>/dev/null)
+            
+            if [[ "$cmd_base" == "node" ]]; then
+                target_pids="$target_pids $pid"
+            else
+                echo "⚠️  Warning: Process '$cmd' (PID: $pid) is using port $port. NOT killing it as it does not appear to be our server."
+                echo "   maybe a docker version is already running"
+                return 1
+            fi
+        done
+
+        if [ ! -z "$target_pids" ]; then
+            echo "Found existing node process(es) (PIDs:$target_pids). Killing..."
+            echo "$target_pids" | xargs kill -9 2>/dev/null || true
             sleep 2
-        fi
-        # Final check
-        remaining_pids=$(lsof -ti :$port 2>/dev/null)
-        if [ -z "$remaining_pids" ]; then
-            echo "✅ Successfully killed processes on port $port."
-        else
-            echo "⚠️  Warning: Port $port may still be in use (PIDs: $remaining_pids)"
+            
+            # Verify they are killed
+            local remaining_pids=$(lsof -ti :$port 2>/dev/null)
+            if [ ! -z "$remaining_pids" ]; then
+                echo "⚠️  Warning: Port $port may still be in use."
+            else
+                echo "✅ Successfully killed node processes on port $port."
+            fi
         fi
     else
-        echo "No $process_name processes found on port $port."
+        # Fallback checks only if port was empty
+        # ... (rest of the specific pgrep checks can remain or be simplified, but standardizing on port check is safer)
+        echo "No process found directly binding port $port."
+        
+        # We can keep the specific pattern matches as a secondary cleanup sweep
+        # just in case the port wasn't bound yet but the process exists
+        local cleanup_pids=""
+        cleanup_pids=$(pgrep -f "workspace=$process_name" 2>/dev/null || true)
+        
+        if [ ! -z "$cleanup_pids" ]; then
+             echo "Cleaning up loose workspace processes: $cleanup_pids"
+             echo "$cleanup_pids" | xargs kill -9 2>/dev/null || true
+        fi
     fi
-    
-    # Additional wait to ensure port is fully released
-    sleep 1
 }
 
 start_server() {
@@ -111,7 +119,10 @@ cleanup() {
 trap cleanup INT TERM EXIT
 
 echo "🛑 Stopping any existing local-notes-mcp server..."
-kill_port 31111 "server"
+if ! kill_port 31111 "server"; then
+    echo "❌ restart aborted."
+    exit 1
+fi
 
 echo ""
 echo "🧹 Cleaning previous build artifacts..."
