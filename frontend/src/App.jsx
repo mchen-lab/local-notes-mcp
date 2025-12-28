@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { POLL_INTERVAL_MS, POLL_LOOKBACK_MS, SEARCH_DEBOUNCE_MS } from "./config";
 import { Loader2 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import SidebarContent from "@/components/SidebarContent";
@@ -46,8 +47,8 @@ export default function App() {
     let active = true;
     
     const tick = () => {
-      // Get notes updated in the last 15 seconds (slightly more than poll interval for safety)
-      const since = new Date(Date.now() - 15000).toISOString();
+      // Get notes updated recently (slightly more than poll interval for safety)
+      const since = new Date(Date.now() - POLL_LOOKBACK_MS).toISOString();
       fetch(`/api/notes?updated_since=${encodeURIComponent(since)}`)
         .then((r) => r.json())
         .then((data) => {
@@ -79,8 +80,8 @@ export default function App() {
         .catch(() => {});
     };
     
-    // Poll every 10s
-    const t = setInterval(tick, 10000);
+    // Poll for updates
+    const t = setInterval(tick, POLL_INTERVAL_MS);
     return () => {
       active = false;
       clearInterval(t);
@@ -89,7 +90,7 @@ export default function App() {
 
   // 3. Search Debounce
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearchTerm(searchTerm), 250);
+    const t = setTimeout(() => setDebouncedSearchTerm(searchTerm), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(t);
   }, [searchTerm]);
 

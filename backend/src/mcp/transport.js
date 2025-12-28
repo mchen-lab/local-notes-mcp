@@ -3,6 +3,7 @@ import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { getUserByApiKey } from "../../notesDb.js";
 import { userContext } from "../middleware/context.js";
 import { mcpServer } from "./index.js";
+import config from "../config.js";
 
 const router = express.Router();
 const transports = new Map();
@@ -79,7 +80,7 @@ router.get("/:apiKey?", async (req, res) => {
     };
 
     // Start heartbeat after a short delay to allow initial handshake to complete
-    // Heartbeat: Send a comment every 15s to keep connection alive
+    // Heartbeat: Send a comment to keep connection alive
     setTimeout(() => {
       heartbeat = setInterval(() => {
         try {
@@ -95,8 +96,8 @@ router.get("/:apiKey?", async (req, res) => {
           console.error(`MCP heartbeat error for sessionId=${sessionId}:`, err.message);
           cleanup();
         }
-      }, 15000); // 15 seconds
-    }, 2000); // Wait 2 seconds before starting heartbeat
+      }, config.heartbeatIntervalMs);
+    }, config.heartbeatStartDelayMs);
 
     // Handle connection errors - use once to avoid duplicate handlers
     res.once("close", () => {

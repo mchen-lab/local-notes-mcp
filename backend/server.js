@@ -10,8 +10,8 @@ import cors from "cors";
 import path from "path";
 import http from "http";
 import { fileURLToPath } from "url";
-import dotenv from "dotenv";
 
+import config from "./src/config.js";
 import { initializeDb, getUserCount } from "./notesDb.js";
 import { setupFrontend } from "./src/frontend.js";
 
@@ -25,12 +25,9 @@ import imagesRoutes from "./src/routes/images.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load environment variables from root .env file
-dotenv.config({
-  path: path.resolve(__dirname, "../.env"),
-});
 
-const PORT = process.env.PORT || 31111;
+
+const PORT = config.port;
 
 const app = express();
 export { app };
@@ -42,7 +39,7 @@ initializeDb();
 
 // --- CRITICAL FIX: Only parse JSON for REST API routes ---
 // This prevents Express from consuming the stream for MCP requests.
-app.use("/api", express.json({ limit: "50mb" }));
+app.use("/api", express.json({ limit: config.jsonBodyLimit }));
 
 // Mount Routes
 app.use("/api/notes", notesRoutes);

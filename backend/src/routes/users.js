@@ -18,6 +18,7 @@ import {
   ADMIN_GUIDE_CONTENT,
   getMcpSetupGuideContent,
 } from "../config/templates.js";
+import config from "../config.js";
 
 const router = express.Router();
 
@@ -38,7 +39,7 @@ router.get("/current", (req, res) => {
 
 });
 
-const MAX_USERNAME_LENGTH = 16;
+const MAX_USERNAME_LENGTH = config.maxUsernameLength;
 
 router.put("/current", (req, res) => {
   const userId = getUserId(req);
@@ -90,7 +91,7 @@ router.post("/register", (req, res) => {
   
   try {
       const user = createUser({ username, password });
-      const maxAge = 30 * 24 * 60 * 60;
+      const maxAge = config.sessionMaxAgeSeconds;
       res.setHeader(
         "Set-Cookie",
         `user_id=${encodeURIComponent(
@@ -105,7 +106,7 @@ router.post("/register", (req, res) => {
       }, user.id);
 
       // Inject MCP setup guide with user's API key
-      const baseUrl = `http://localhost:${process.env.PORT || 5678}`;
+      const baseUrl = `http://localhost:${config.port}`;
       createNote({
         title: "MCP Setup Guide 🔌",
         content: getMcpSetupGuideContent(user.api_key, baseUrl)
@@ -136,7 +137,7 @@ router.post("/login", (req, res) => {
     return res.status(400).json({ error: "password required" });
   const user = getUserByCreds({ username, password });
   if (!user) return res.status(401).json({ error: "invalid credentials" });
-  const maxAge = 30 * 24 * 60 * 60;
+  const maxAge = config.sessionMaxAgeSeconds;
   res.setHeader(
     "Set-Cookie",
     `user_id=${encodeURIComponent(

@@ -9,6 +9,7 @@ import {
   deleteNote,
   appendNote,
 } from "../../notesDb.js";
+import config from "../config.js";
 
 const mcpServer = new McpServer({
   name: "local-notes-mcp",
@@ -192,7 +193,7 @@ mcpServer.registerTool(
   async ({ limit = 10 }) => {
     try {
       const userId = userContext.getStore();
-      const maxLimit = Math.min(limit || 10, 100); // Enforce max 100
+      const maxLimit = Math.min(limit || config.notesDefaultLimit, config.notesMaxLimit);
       console.error("Listing recent notes with userId:", userId, `limit: ${maxLimit}`);
 
       const notes = searchNotes(userId, null, maxLimit);
@@ -227,7 +228,7 @@ mcpServer.registerTool(
   async ({ keyword, limit = 10 }) => {
     try {
       const userId = userContext.getStore();
-      const maxLimit = Math.min(limit || 10, 100); // Enforce max 100
+      const maxLimit = Math.min(limit || config.notesDefaultLimit, config.notesMaxLimit);
       console.error("Searching notes with userId:", userId, `keyword: ${keyword}`, `limit: ${maxLimit}`);
 
       if (!keyword || !keyword.trim()) {

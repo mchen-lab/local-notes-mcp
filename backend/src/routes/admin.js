@@ -15,6 +15,7 @@ import {
 import {
   getUserId,
 } from "../middleware/auth.js";
+import config from "../config.js";
 
 // We need __dirname to resolve DB path
 const __filename = fileURLToPath(import.meta.url);
@@ -36,7 +37,7 @@ router.put("/users/:id", (req, res) => {
   const updates = req.body || {};
 
   // Username length validation
-  const MAX_USERNAME_LENGTH = 16;
+  const MAX_USERNAME_LENGTH = config.maxUsernameLength;
   if (updates.username && updates.username.length > MAX_USERNAME_LENGTH) {
     return res.status(400).json({ error: `Username must be ${MAX_USERNAME_LENGTH} characters or less` });
   }
@@ -151,7 +152,7 @@ router.get("/database", (req, res) => {
     return res.status(403).json({ error: "Access denied. Admin only." });
   }
 
-  const dbPath = process.env.DB_PATH || "data/local_notes_mcp.db";
+  const dbPath = config.dbPath;
   // Resolve absolute path same way as notesDb initializes it
   // Relative to project root
   let resolvedPath = dbPath;
@@ -198,7 +199,7 @@ router.post("/database", upload.single("database"), (req, res) => {
       return res.status(400).json({ error: "No file uploaded" });
   }
 
-  const dbPath = process.env.DB_PATH || "data/local_notes_mcp.db";
+  const dbPath = config.dbPath;
   let resolvedPath = dbPath;
   if (dbPath !== ":memory:" && !dbPath.startsWith("data/") && !path.isAbsolute(dbPath)) {
     resolvedPath = `data/${dbPath}`;

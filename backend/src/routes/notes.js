@@ -14,6 +14,7 @@ import {
   importNote,
 } from "../../notesDb.js";
 import { getUserId } from "../middleware/auth.js";
+import config from "../config.js";
 
 const router = express.Router();
 
@@ -24,7 +25,7 @@ router.get("/", (req, res) => {
   
   // Support keyword search with limit (for MCP tools: list_recent_notes and search_notes)
   if (keyword || limitParam) {
-    const limit = limitParam ? Math.min(Math.max(1, Number(limitParam)), 100) : 10;
+    const limit = limitParam ? Math.min(Math.max(1, Number(limitParam)), config.notesMaxLimit) : config.notesDefaultLimit;
     return res.json(searchNotes(userId, keyword || null, limit));
   }
   
