@@ -16,11 +16,20 @@ Our philosophy is **"The Sharp Knife"**: A focused, local-first tool that does o
 - [ ] **Audio Notes**: Investigating simple voice-to-text workflows.
 - [ ] **Smart Context**: Methods to help Agents digest long notes efficiently.
 
+## ⚡ Performance & Scalability
+*Goal: Support thousands of notes without UI lag.*
+
+- [ ] **Virtual Scrolling**: Implement list virtualization (e.g., `react-window`) for the sidebar note list to handle large collections efficiently.
+- [ ] **Pagination/Lazy Loading**: Optimize initial load times for users with massive databases.
+
 ## 🛠️ Maintenance & Refactoring
 *Goal: Keep the codebase clean and approachable for new contributors.*
 
 - [ ] **Extract Frontend Hooks**: Move complex logic from `App.jsx` into custom hooks (e.g., `useNotes`, `useAuth`).
 - [ ] **Type definitions**: Improve JSDoc or migrate key files to TypeScript for better developer experience.
+
+## 🐛 Known Issues
+- [ ] **Polling Sync**: Currently, the polling mechanism only fetches *updated* notes. It does not yet track *deleted* notes, so deletions may not propagate to other clients until a full page refresh.
 
 ## ❌ What We Are NOT Building (Out of Scope)
 - Cloud Sync (We are local-first)

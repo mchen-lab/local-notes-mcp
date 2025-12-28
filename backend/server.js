@@ -68,6 +68,11 @@ async function startServer() {
   const viteEnabled = await setupFrontend(app);
   const server = http.createServer(app);
 
+  // TUNING: Increase Keep-Alive timeout to prevent premature socket closure
+  // This is critical for long-lived SSE connections on some networks.
+  server.keepAliveTimeout = config.keepAliveTimeoutMs; 
+  server.headersTimeout = config.headersTimeoutMs;
+
   // Add error handler for server.listen()
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {

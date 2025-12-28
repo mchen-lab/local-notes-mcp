@@ -28,6 +28,8 @@ const parseIntEnv = (key, defaultValue) => {
 export const config = {
   // Server
   port: parseIntEnv("PORT", 31111),
+  keepAliveTimeoutMs: parseIntEnv("KEEP_ALIVE_TIMEOUT_MS", 65000), // 65s
+  headersTimeoutMs: parseIntEnv("HEADERS_TIMEOUT_MS", 66000),      // 66s
   
   // Database
   dbPath: process.env.DB_PATH || "data/local_notes_mcp.db",
@@ -42,8 +44,8 @@ export const config = {
   },
   
   // MCP Transport
-  heartbeatIntervalMs: parseIntEnv("HEARTBEAT_INTERVAL_MS", 15000),
-  heartbeatStartDelayMs: parseIntEnv("HEARTBEAT_START_DELAY_MS", 2000),
+  heartbeatIntervalMs: parseIntEnv("HEARTBEAT_INTERVAL_MS", 10000),
+  heartbeatStartDelayMs: parseIntEnv("HEARTBEAT_START_DELAY_MS", 3000),
   
   // API Limits
   notesDefaultLimit: parseIntEnv("NOTES_DEFAULT_LIMIT", 10),
