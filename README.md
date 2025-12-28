@@ -113,7 +113,6 @@ This application acts as an MCP Server.
 - **Antigravity**: Stdio supported.
 - **Other Clients**: Most MCP clients should work with the SSE endpoint.
 
-> **Known Issue:** Connecting to the MCP server from a *different machine* on the local network (e.g., laptop connecting to a home server) may successfully connect but experience instability with some AI clients due to network timeouts or VPN interference. We are working to improve this in future versions.
 
 ## Project Structure
 
@@ -129,6 +128,22 @@ local-notes-mcp/
 - **Found a bug?** Open an [Issue](https://github.com/mchen-lab/local-notes-mcp/issues)
 - **Have an idea?** Submit a feature request
 
-## License
+
+ ## Troubleshooting & FAQ
+ 
+ ### How do I update to the latest version?
+ Run the following command:
+ 
+ ```bash
+ docker pull ghcr.io/mchen-lab/local-notes-mcp:latest && \
+ docker stop local-notes-mcp && \
+ docker rm local-notes-mcp && \
+ docker run -d --name local-notes-mcp -p 31111:31111 -v local_notes_mcp_data:/app/data ghcr.io/mchen-lab/local-notes-mcp:latest
+ ```
+ 
+ ### Can I connect to the server from another computer?
+ Yes, you can connect to the server from another computer on the same local network using the server's IP address. However, note that **connecting via VPN or complex network setups might cause instability** with some MCP clients due to timeouts. If you experience issues, try connecting from the same machine or ensure a stable direct local connection.
+ 
+ ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
