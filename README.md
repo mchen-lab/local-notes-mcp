@@ -55,9 +55,10 @@ Open [http://localhost:31111](http://localhost:31111) in your browser.
 - 📊 **Mermaid Diagrams**: Render flowcharts, sequence diagrams, and more with built-in Mermaid.js support
 - ⭐ **Favorites**: Star notes for quick access; filter to show only favorites
 - 🔍 **Search**: Search by note ID, title, or content
-- 🏷️ **Tags**: Organize notes with inline `#hashtags` that are automatically extracted and displayed
+- 🏷️ **Tags**: Organize notes with inline `#hashtags`. Click tags to filter instantly.
 - 📅 **Date Grouping**: Notes grouped by month or day with collapsible sections
 - ⌨️ **Keyboard Shortcuts**: Efficient editing with keyboard shortcuts
+- ⬆️ **Easy Navigation**: Floating back-to-top button for long lists
 
 ### Batch Operations
 - ✅ **Multi-select Mode**: Select multiple notes for batch operations
@@ -84,6 +85,7 @@ Open [http://localhost:31111](http://localhost:31111) in your browser.
 
 ### AI Integration (MCP)
 - 🤖 **MCP Server**: Built-in Model Context Protocol server for AI integration
+- ➕ **Append Support**: AI agents can append to existing notes (great for logging)
 - 🔌 **SSE Transport**: Connect AI clients via Server-Sent Events
 - 🔑 **API Key Auth**: Secure MCP connections with per-user API keys
 - 📋 **Easy Setup**: Copy MCP configuration directly from the settings dialog
