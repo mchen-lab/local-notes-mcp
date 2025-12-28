@@ -40,34 +40,47 @@ export default function App() {
       .catch(() => setIsLoading(false));
   }, []);
 
-  // 2. Poll for updates (simplified from original)
+  // 2. Poll for updates - fetch notes updated since last poll
   useEffect(() => {
     if (!currentUser) return;
-    function monthStr(d) {
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      return `${y}-${m}`;
-    }
     let active = true;
+    
     const tick = () => {
-      const ms = monthStr(new Date());
-      fetch(`/api/notes?month=${encodeURIComponent(ms)}`)
+      // Get notes updated in the last 15 seconds (slightly more than poll interval for safety)
+      const since = new Date(Date.now() - 15000).toISOString();
+      fetch(`/api/notes?updated_since=${encodeURIComponent(since)}`)
         .then((r) => r.json())
         .then((data) => {
-          if (!active) return;
+          if (!active || !data.length) return;
           setNotes((prev) => {
-            const ids = new Set(prev.map((n) => n.id));
-            const additions = data.filter((n) => !ids.has(n.id));
-            if (!additions.length) return prev;
-            return [...additions, ...prev];
+            const existingIds = new Map(prev.map((n) => [n.id, n]));
+            let updated = false;
+            
+            // Merge updates: update existing or add new
+            for (const note of data) {
+              if (existingIds.has(note.id)) {
+                // Update existing note if it changed
+                const existing = existingIds.get(note.id);
+                if (existing.updatedAt !== note.updatedAt) {
+                  existingIds.set(note.id, note);
+                  updated = true;
+                }
+              } else {
+                // New note - add it
+                existingIds.set(note.id, note);
+                updated = true;
+              }
+            }
+            
+            if (!updated) return prev;
+            return Array.from(existingIds.values());
           });
         })
         .catch(() => {});
     };
-    // Poll every 30s
-    const t = setInterval(tick, 30000);
-    // Initial fetch for current month happens in loadNotes anyway, but this is for live updates
-    // tick(); // skipping immediate tick to avoid double fetch race with loadNotes
+    
+    // Poll every 10s
+    const t = setInterval(tick, 10000);
     return () => {
       active = false;
       clearInterval(t);

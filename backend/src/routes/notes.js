@@ -2,6 +2,7 @@ import express from "express";
 import {
   listNotes,
   listNotesByCreatedRange,
+  listNotesUpdatedSince,
   searchNotes,
   getNote,
   createNote,
@@ -40,6 +41,12 @@ router.get("/", (req, res) => {
         listNotesByCreatedRange(userId, start.toISOString(), next.toISOString())
       );
     }
+  }
+  
+  // Support updated_since filter (for polling updates)
+  const updatedSince = (req.query.updated_since || "").toString();
+  if (updatedSince) {
+    return res.json(listNotesUpdatedSince(userId, updatedSince));
   }
   
   // Default: return all notes (for frontend)

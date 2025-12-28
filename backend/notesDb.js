@@ -180,6 +180,25 @@ export function listNotesByCreatedRange(userId, fromIso, toIso) {
   return rows.map(rowToNote);
 }
 
+export function listNotesUpdatedSince(userId, sinceIso) {
+  const clauses = [];
+  const params = [];
+  if (userId == null) {
+    clauses.push("user_id IS NULL");
+  } else {
+    clauses.push("user_id = ?");
+    params.push(userId);
+  }
+  if (sinceIso) {
+    clauses.push("updated_at > ?");
+    params.push(sinceIso);
+  }
+  const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
+  const sql = `SELECT id, title, content, created_at, updated_at, favorite FROM notes ${where} ORDER BY updated_at DESC`;
+  const rows = db.prepare(sql).all(...params);
+  return rows.map(rowToNote);
+}
+
 export function searchNotes(userId, keyword, limit = 10) {
   const clauses = [];
   const params = [];
