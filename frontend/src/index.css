@@ -75,6 +75,11 @@
   }
 }
 
+/* Search input clear button (X) */
+input[type="search"]::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
 /* Mobile-responsive split pane for editor */
 .split-pane-container {
   display: flex;
