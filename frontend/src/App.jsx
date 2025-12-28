@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { POLL_INTERVAL_MS, POLL_LOOKBACK_MS, SEARCH_DEBOUNCE_MS } from "./config";
+import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
+import { POLL_INTERVAL_MS, POLL_INTERVAL_SLOW_MS, POLL_LOOKBACK_MS, SEARCH_DEBOUNCE_MS } from "./config";
 import { Loader2 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import SidebarContent from "@/components/SidebarContent";
@@ -41,52 +41,104 @@ export default function App() {
       .catch(() => setIsLoading(false));
   }, []);
 
-  // 2. Poll for updates - fetch notes updated since last poll
-  useEffect(() => {
+  // 2. Adaptive Polling - adjusts based on visibility and focus
+  //    - Hidden tab: pause polling
+  //    - Visible but unfocused: slow poll (60s)
+  //    - Focused: normal poll (10s)
+  //    - On regain focus: immediate catch-up poll (no full refresh needed)
+  const pollTimeoutRef = useRef(null);
+  
+  const pollForUpdates = useCallback(() => {
     if (!currentUser) return;
-    let active = true;
     
-    const tick = () => {
-      // Get notes updated recently (slightly more than poll interval for safety)
-      const since = new Date(Date.now() - POLL_LOOKBACK_MS).toISOString();
-      fetch(`/api/notes?updated_since=${encodeURIComponent(since)}`)
-        .then((r) => r.json())
-        .then((data) => {
-          if (!active || !data.length) return;
-          setNotes((prev) => {
-            const existingIds = new Map(prev.map((n) => [n.id, n]));
-            let updated = false;
-            
-            // Merge updates: update existing or add new
-            for (const note of data) {
-              if (existingIds.has(note.id)) {
-                // Update existing note if it changed
-                const existing = existingIds.get(note.id);
-                if (existing.updatedAt !== note.updatedAt) {
-                  existingIds.set(note.id, note);
-                  updated = true;
-                }
-              } else {
-                // New note - add it
+    const since = new Date(Date.now() - POLL_LOOKBACK_MS).toISOString();
+    fetch(`/api/notes?updated_since=${encodeURIComponent(since)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data.length) return;
+        setNotes((prev) => {
+          const existingIds = new Map(prev.map((n) => [n.id, n]));
+          let updated = false;
+          
+          for (const note of data) {
+            if (existingIds.has(note.id)) {
+              const existing = existingIds.get(note.id);
+              if (existing.updatedAt !== note.updatedAt) {
                 existingIds.set(note.id, note);
                 updated = true;
               }
+            } else {
+              existingIds.set(note.id, note);
+              updated = true;
             }
-            
-            if (!updated) return prev;
-            return Array.from(existingIds.values());
-          });
-        })
-        .catch(() => {});
+          }
+          
+          if (!updated) return prev;
+          return Array.from(existingIds.values());
+        });
+      })
+      .catch(() => {});
+  }, [currentUser]);
+  
+  useEffect(() => {
+    if (!currentUser) return;
+    
+    const scheduleNextPoll = () => {
+      // Clear any existing timeout
+      if (pollTimeoutRef.current) {
+        clearTimeout(pollTimeoutRef.current);
+      }
+      
+      // Determine polling interval based on visibility and focus
+      const isHidden = document.visibilityState === 'hidden';
+      const isFocused = document.hasFocus();
+      
+      if (isHidden) {
+        // Tab not visible - pause polling entirely
+        return;
+      }
+      
+      const interval = isFocused ? POLL_INTERVAL_MS : POLL_INTERVAL_SLOW_MS;
+      
+      pollTimeoutRef.current = setTimeout(() => {
+        pollForUpdates();
+        scheduleNextPoll();
+      }, interval);
     };
     
-    // Poll for updates
-    const t = setInterval(tick, POLL_INTERVAL_MS);
-    return () => {
-      active = false;
-      clearInterval(t);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Tab became visible - do immediate catch-up poll
+        pollForUpdates();
+      }
+      scheduleNextPoll();
     };
-  }, [currentUser]);
+    
+    const handleFocusChange = () => {
+      if (document.hasFocus()) {
+        // Window regained focus - do immediate catch-up poll
+        pollForUpdates();
+      }
+      scheduleNextPoll();
+    };
+    
+    // Initial schedule
+    scheduleNextPoll();
+    
+    // Listen for visibility and focus changes
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocusChange);
+    window.addEventListener('blur', handleFocusChange);
+    
+    return () => {
+      if (pollTimeoutRef.current) {
+        clearTimeout(pollTimeoutRef.current);
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocusChange);
+      window.removeEventListener('blur', handleFocusChange);
+    };
+  }, [currentUser, pollForUpdates]);
 
   // 3. Search Debounce
   useEffect(() => {
