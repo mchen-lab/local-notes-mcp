@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { 
   ArrowLeft, 
+  ArrowUp,
   Share, 
   MoreHorizontal, 
   Pencil, 
@@ -131,9 +132,11 @@ export default function NoteDetail({
   const [content, setContent] = useState("");
   const [splitRatio, setSplitRatio] = useState(0.5);
   const [isDragging, setIsDragging] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const scrollContainerRef = useRef(null);
   const splitRef = useRef(null);
   const textareaRef = useRef(null);
+  const viewScrollRef = useRef(null);
 
   const [isCopied, setIsCopied] = useState(false);
 
@@ -507,7 +510,14 @@ export default function NoteDetail({
         </div>
 
         {/* Content Viewer */}
-        <ScrollArea className="flex-1 p-6 md:p-12">
+        <ScrollArea 
+          className="flex-1 p-6 md:p-12" 
+          ref={viewScrollRef}
+          onScrollCapture={(e) => {
+            const scrollTop = e.target.scrollTop;
+            setShowBackToTop(scrollTop > 300);
+          }}
+        >
             <div className="w-full">
               <h1 className="text-3xl font-bold mb-6 break-words">{title || "Untitled"}</h1>
               <TagList text={content} />
@@ -524,6 +534,25 @@ export default function NoteDetail({
               </div>
             </div>
         </ScrollArea>
+
+        {/* Back to Top Button */}
+        {showBackToTop && (
+          <Button
+            variant="secondary"
+            size="icon"
+            className="fixed bottom-6 right-6 z-50 rounded-full shadow-lg hover:shadow-xl transition-all print:hidden"
+            onClick={() => {
+              if (viewScrollRef.current) {
+                const viewport = viewScrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+                if (viewport) {
+                  viewport.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              }
+            }}
+          >
+            <ArrowUp className="h-5 w-5" />
+          </Button>
+        )}
       </div>
     );
   }
