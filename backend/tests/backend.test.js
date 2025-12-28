@@ -6,7 +6,11 @@ import {
   createUser, 
   createNote, 
   listNotes, 
-  getUserByCreds 
+  listNotes, 
+  listNotes, 
+  getUserByCreds,
+  appendNote,
+  deleteNote
 } from "../notesDb.js";
 
 describe("Backend Integration Tests", () => {
@@ -49,6 +53,37 @@ describe("Backend Integration Tests", () => {
       const notes = listNotes(testUser.id);
       expect(notes.length).toBe(1);
       expect(notes[0].title).toBe("Test Note");
+    });
+
+    it("should append content to a note", () => {
+      // Create a note to append to
+      const note = createNote({ title: "Append Test", content: "Initial content" }, testUser.id);
+      
+      try {
+        // Append content
+        const updated = appendNote(note.id, "Appended text", testUser.id);
+        
+        expect(updated.content).toBe("Initial content\n\nAppended text");
+      } finally {
+        // Cleanup
+        deleteNote(note.id, testUser.id);
+      }
+    });
+
+    it("should handle empty append text", () => {
+      const note = createNote({ title: "Empty Append", content: "Initial" }, testUser.id);
+      
+      try {
+        // Append null/undefined/empty
+        const result1 = appendNote(note.id, null, testUser.id);
+        expect(result1.content).toBe("Initial");
+        
+        const result2 = appendNote(note.id, "", testUser.id);
+        expect(result2.content).toBe("Initial");
+      } finally {
+        // Cleanup
+        deleteNote(note.id, testUser.id);
+      }
     });
   });
 
