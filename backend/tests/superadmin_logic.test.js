@@ -6,8 +6,11 @@ import {
   createUser, 
   updateUser, 
   getSuperAdminId,
-  getUserById 
+  getUserById,
+  getUserByCreds 
 } from '../notesDb.js';
+import request from "supertest";
+import { app } from "../server.js";
 import path from 'path';
 import fs from 'fs';
 
@@ -58,6 +61,30 @@ describe('Super Admin & User Management Logic', () => {
         // The check in notesDb excludes self: existing.id !== id
         const updated = updateUser(otherUser.id, { username: "regularuser" });
         expect(updated.username).toBe("regularuser"); // SQLite might update casing
+    });
+
+    it("should allow Super Admin to update password even if is_admin is sent (Regression)", async () => {
+        // Login to get cookie
+        const loginRes = await request(app)
+          .post("/api/users/login")
+          .send({ username: "SuperAdmin", password: "password123" });
+        const cookie = loginRes.headers["set-cookie"][0];
+    
+        // Attempt to update password, BUT include is_admin in payload
+        const res = await request(app)
+          .put(`/api/admin/users/${superAdmin.id}`)
+          .set("Cookie", cookie)
+          .send({ 
+            username: "SuperAdmin", 
+            password: "newpassword123",
+            is_admin: 1 
+          });
+    
+        expect(res.status).toBe(200);
+        
+        // Verify password changed
+        const user = getUserByCreds({ username: "SuperAdmin", password: "newpassword123" });
+        expect(user).not.toBeNull();
     });
 
     // Note: Permission checks (who can change is_admin) are in the ROUTE layer (admin.js), 

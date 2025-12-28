@@ -60,7 +60,16 @@ router.put("/users/:id", (req, res) => {
       }
       
       if (targetId === superAdminId) {
-          return res.status(400).json({ error: "Super Admin cannot change their own admin status." });
+          // If trying to change Super Admin's admin status
+          if (!updates.is_admin) {
+              return res.status(400).json({ error: "Super Admin cannot remove their own admin privileges." });
+          }
+          // If is_admin is true/1, just ignore it (remove from updates) so we don't trigger any potential weirdness,
+          // though typically it just overwrites 1 with 1. 
+          // Safest to delete it from updates so we don't write it if not needed, 
+          // OR just let it pass. Let's let it pass but validation passed.
+          // Actually, let's remove it to be clean.
+          delete updates.is_admin;
       }
   }
 

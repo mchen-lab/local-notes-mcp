@@ -189,9 +189,20 @@ export default function NoteDetail({
       } else {
           // Same ID, check for content update (e.g. from background merge)
           if (note.updatedAt !== lastNoteUpdatedRef.current) {
-               // Server has newer version
-               setHasNewVersion(true);
-               // We DO NOT auto-update title/content here anymore
+               // Check if the content is actually different from what we have locally as "original"
+               // If we just saved, originalStateRef is updated to the new content.
+               // So if the incoming note matches originalStateRef, it's likely our own save coming back.
+               const isSameContent = 
+                  (note.title || "") === originalStateRef.current.title && 
+                  (note.content || "") === originalStateRef.current.content;
+
+               if (isSameContent) {
+                   // Content matches, just update the timestamp reference silently
+                   lastNoteUpdatedRef.current = note.updatedAt;
+               } else {
+                   // Server has newer version with ACTUAL changes
+                   setHasNewVersion(true);
+               }
           }
 
           if (autoEdit) {
