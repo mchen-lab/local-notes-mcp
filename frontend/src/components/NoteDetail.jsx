@@ -140,6 +140,7 @@ export default function NoteDetail({
   const lastNoteIdRef = useRef(null);
   const lastNoteUpdatedRef = useRef(null);
   const originalStateRef = useRef({ title: "", content: "" });
+  const [hasNewVersion, setHasNewVersion] = useState(false);
 
   // Reset dirty state on view mode
   useEffect(() => {
@@ -168,6 +169,7 @@ export default function NoteDetail({
           setTitle(t);
           setContent(c);
           originalStateRef.current = { title: t, content: c };
+          setHasNewVersion(false);
           
           if (autoEdit) {
              setIsEditing(true);
@@ -178,12 +180,9 @@ export default function NoteDetail({
       } else {
           // Same ID, check for content update (e.g. from background merge)
           if (note.updatedAt !== lastNoteUpdatedRef.current) {
-               lastNoteUpdatedRef.current = note.updatedAt;
-               if (!isEditing) {
-                   setTitle(note.title || "");
-                   setContent(note.content || "");
-                   originalStateRef.current = { title: note.title || "", content: note.content || "" };
-               }
+               // Server has newer version
+               setHasNewVersion(true);
+               // We DO NOT auto-update title/content here anymore
           }
 
           if (autoEdit) {
@@ -192,7 +191,7 @@ export default function NoteDetail({
           }
       }
     }
-  }, [note, autoEdit, onAutoEditHandled, isEditing]);
+  }, [note, autoEdit, onAutoEditHandled]);
 
   // ... (resize logic skipped here, no change needed) ...
 
@@ -300,6 +299,35 @@ export default function NoteDetail({
     }, 0);
   };
 
+  const handleRefresh = () => {
+      // Check for unsaved changes first
+      const isDirty = title !== originalStateRef.current.title || content !== originalStateRef.current.content;
+      if (isDirty) {
+          setConfirmDialog({
+             open: true,
+             title: "Unsaved Changes",
+             description: "Usage of external tools has updated this note. updating will overwrite your unsaved changes. Continue?",
+             confirmText: "Overwrite",
+             isAlert: true,
+             onConfirm: () => {
+                 performRefresh();
+                 setConfirmDialog(prev => ({ ...prev, open: false }));
+             }
+          });
+      } else {
+          performRefresh();
+      }
+  };
+
+  const performRefresh = () => {
+      if (!note) return;
+      lastNoteUpdatedRef.current = note.updatedAt;
+      setTitle(note.title || "");
+      setContent(note.content || "");
+      originalStateRef.current = { title: note.title || "", content: note.content || "" };
+      setHasNewVersion(false);
+  };
+
   const uploadImageAndGetMarkdown = async (file) => {
     try {
         const result = await uploadImage(file);
@@ -400,6 +428,15 @@ export default function NoteDetail({
       // (View mode content)
      return (
       <div className="flex flex-col h-full bg-background relative">
+        {/* Update Banner */}
+        {hasNewVersion && (
+            <div className="bg-blue-100 text-blue-800 px-4 py-2 text-sm flex items-center justify-between shrink-0">
+                <span>A newer version of this note is available.</span>
+                <Button variant="outline" size="sm" className="h-7 bg-white text-blue-800 hover:bg-blue-50 border-blue-200" onClick={handleRefresh}>
+                    Refresh
+                </Button>
+            </div>
+        )}
         {/* Toolbar */}
         <div className="flex items-center justify-between p-4 border-b shrink-0 print:hidden">
           <div className="flex items-center gap-2">
@@ -496,7 +533,20 @@ export default function NoteDetail({
     <div className="flex flex-col h-full bg-background overflow-hidden">
       {/* Edit Toolbar */}
       <div className="flex items-center justify-between p-2 border-b shrink-0 gap-2">
-         <div className="flex items-center gap-2 flex-1 min-w-0">
+         {/* Edit Mode Banner Overlay or Integrated? 
+             Let's put it above the toolbar or inside. 
+             Inside might crowd it. Above is consistent. 
+         */}
+         {hasNewVersion && (
+            <div className="absolute top-0 left-0 right-0 z-10 bg-blue-100 text-blue-800 px-4 py-1 text-sm flex items-center justify-between border-b border-blue-200">
+                <span>Newer version available.</span>
+                <Button variant="outline" size="sm" className="h-6 text-xs bg-white text-blue-800 hover:bg-blue-50 border-blue-200" onClick={handleRefresh}>
+                    Refresh
+                </Button>
+            </div>
+         )}
+         
+         <div className={`flex items-center gap-2 flex-1 min-w-0 ${hasNewVersion ? "mt-8" : ""}`}>
             <Input 
               value={title} 
               onChange={e => setTitle(e.target.value)} 
@@ -504,7 +554,7 @@ export default function NoteDetail({
               placeholder="Note Title"
             />
          </div>
-         <div className="flex items-center gap-2">
+         <div className={`flex items-center gap-2 ${hasNewVersion ? "mt-8" : ""}`}>
              <Button variant="ghost" size="sm" onClick={handleCancel}>Cancel</Button>
              <Button size="sm" onClick={handleSave} className="gap-2">
                <Save className="h-4 w-4" /> Save
