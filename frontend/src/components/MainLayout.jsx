@@ -22,19 +22,15 @@ export default function MainLayout({
         "hidden w-[350px] flex-col border-r bg-muted/10 print:hidden",
         !isFullScreen && "md:flex"
       )}>
-        <ScrollArea className="h-full">
-          {sidebar}
-        </ScrollArea>
+        {sidebar}
       </aside>
 
       {/* Mobile Sidebar (Drawer) - For Detail View */}
       <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-        <SheetContent side="left" className="w-[80vw] sm:w-[300px] p-0">
-          <ScrollArea className="h-full">
-            {React.isValidElement(sidebar) 
-              ? React.cloneElement(sidebar, { onMobileClose: () => setIsMobileMenuOpen(false) }) 
-              : sidebar}
-          </ScrollArea>
+        <SheetContent side="left" className="w-[80vw] sm:w-[300px] p-0 flex flex-col">
+          {React.isValidElement(sidebar) 
+             ? React.cloneElement(sidebar, { onMobileClose: () => setIsMobileMenuOpen(false) }) 
+             : sidebar}
         </SheetContent>
       </Sheet>
 

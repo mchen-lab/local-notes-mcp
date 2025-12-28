@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { Virtuoso } from 'react-virtuoso';
 import Logo from "./Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -267,30 +268,64 @@ export default function SidebarContent({
           </div>
       )}
 
-      {/* Notes List */}
-      <div className="flex-1 overflow-y-auto px-2">
-        {Object.entries(groupedNotes).map(([month, groupNotes]) => {
-          const isCollapsed = collapsedMonths.has(month);
-          return (
-            <div key={month} className="mb-4">
-              <div 
-                className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
-                onClick={() => toggleMonth(month)}
-              >
-                {isCollapsed ? (
-                  <ChevronRight className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
-                <Calendar className="h-4 w-4" />
-                {month}
-                <Badge variant="secondary" className="ml-auto text-xs">{groupNotes.length}</Badge>
-              </div>
-              {!isCollapsed && (
-                <div className="space-y-1">
-                  {groupNotes.map(note => (
+      {/* Notes List with Virtualization (Non-Sticky Headers) */}
+      {(() => {
+          // 1. Prepare Data: Flatten groups into a single list
+          const groups = Object.entries(groupedNotes);
+          
+          if (groups.length === 0) {
+              return (
+                <div className="flex-1 overflow-y-auto px-4 py-8 text-center text-muted-foreground">
+                  <p>No notes found.</p>
+                </div>
+              );
+          }
+
+          // Flatten: [ {type:'header', month}, {type:'note', note}, ... ]
+          const flatItems = [];
+          
+          groups.forEach(([month, groupNotes]) => {
+              // Add Header
+              flatItems.push({ type: 'header', month, count: groupNotes.length });
+              
+              // Add Notes if not collapsed
+              if (!collapsedMonths.has(month)) {
+                  groupNotes.forEach(note => {
+                      flatItems.push({ type: 'note', note });
+                  });
+              }
+          });
+
+          // 2. Item Renderer that handles both types
+          const itemContent = (index) => {
+              const item = flatItems[index];
+
+              if (item.type === 'header') {
+                  const isCollapsed = collapsedMonths.has(item.month);
+                  return (
+                      <div className="mb-1 mt-4 first:mt-0"> {/* Spacing for headers, except first */}
+                          <div 
+                            className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+                            onClick={() => toggleMonth(item.month)}
+                          >
+                            {isCollapsed ? (
+                              <ChevronRight className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
+                            <Calendar className="h-4 w-4" />
+                            {item.month}
+                            <Badge variant="secondary" className="ml-auto text-xs">{item.count}</Badge>
+                          </div>
+                      </div>
+                  );
+              }
+
+              // It's a note
+              const note = item.note;
+              return (
+                <div className="px-2 pb-1"> 
                     <div
-                      key={note.id}
                       onClick={() => {
                         if (isSelectionMode) {
                             toggleSelected(note.id);
@@ -359,18 +394,20 @@ export default function SidebarContent({
                         })()}
                       </div>
                     </div>
-                  ))}
                 </div>
-              )}
-            </div>
+              );
+          };
+
+          return (
+             <Virtuoso 
+                className="flex-1"
+                totalCount={flatItems.length}
+                itemContent={itemContent}
+                /* Use overscan to keep UI smooth while scrolling fast */
+                overscan={200}
+             />
           );
-        })}
-         {notes.length === 0 && (
-            <div className="text-center p-8 text-muted-foreground">
-              <p>No notes found.</p>
-            </div>
-          )}
-      </div>
+      })()}
     </div>
   );
 }
