@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { Loader2 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import SidebarContent from "@/components/SidebarContent";
 import NoteDetail from "@/components/NoteDetail";
@@ -13,6 +14,7 @@ export default function App() {
   const [selectedId, setSelectedId] = useState(null);
   const [mobileView, setMobileView] = useState("list"); // 'list' | 'detail'
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   // UI State
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,8 +32,12 @@ export default function App() {
       .then((u) => {
         setCurrentUser(u);
         if (u) loadNotes();
-        else setNotes([]);
-      });
+        else {
+          setNotes([]);
+          setIsLoading(false);
+        }
+      })
+      .catch(() => setIsLoading(false));
   }, []);
 
   // 2. Poll for updates (simplified from original)
@@ -103,7 +109,8 @@ export default function App() {
         } else {
             setSelectedId(null);
         }
-      });
+      })
+      .finally(() => setIsLoading(false));
   }
 
   // State for auto-editing new notes
@@ -630,6 +637,14 @@ export default function App() {
   if (!currentUser) {
     return (
       <LoginScreen onLogin={handleLogin} onRegister={handleRegister} />
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
     );
   }
 
