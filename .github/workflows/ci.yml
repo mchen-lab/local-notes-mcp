@@ -97,5 +97,6 @@ jobs:
           build-args: |
              BASE_IMAGE=ghcr.io/mchen-lab/local-notes-mcp:base
              BUILD_METADATA=-prod-${{ steps.date.outputs.date }}
+             GIT_COMMIT=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

@@ -17,6 +17,10 @@ COPY . .
 ARG BUILD_METADATA
 ENV BUILD_METADATA=${BUILD_METADATA}
 
+# Accept commit hash
+ARG GIT_COMMIT
+ENV GIT_COMMIT=${GIT_COMMIT}
+
 # Build Frontend
 RUN npm run build --workspace=frontend
 

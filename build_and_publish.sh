@@ -35,12 +35,15 @@ echo "  - $DOCKERHUB_IMAGE:$TAG"
 
 # Generate build metadata (e.g. -dev-20251228)
 BUILD_META="-dev-$(date +%Y%m%d)"
+COMMIT_HASH=$(git rev-parse --short HEAD)
 echo "Build Metadata: $BUILD_META"
+echo "Commit Hash: $COMMIT_HASH"
 
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
   --build-arg BASE_IMAGE=ghcr.io/mchen-lab/local-notes-mcp:base \
   --build-arg BUILD_METADATA="$BUILD_META" \
+  --build-arg GIT_COMMIT="$COMMIT_HASH" \
   -t "$GHCR_IMAGE:$TAG" \
   -t "$DOCKERHUB_IMAGE:$TAG" \
   --push \
