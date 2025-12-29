@@ -26,23 +26,33 @@ docker run -d \
   ghcr.io/mchen-lab/local-notes-mcp:latest
 ```
 
-Open [http://localhost:31111](http://localhost:31111) in your browser.
 
-### 2. Connect Your AI Agent (Claude Code Example)
 
-You can connect Claude Code using the SSE transport (requires the app to be running):
+### 2. Create User & Login
+
+Since this is a multi-user web app, you first need to create a user account.
+1. Open the app in your browser at [http://localhost:31111](http://localhost:31111).
+2. Create a username and password.
+3. Log in.
+
+### 3. Configure the Agent
+
+1. Click the **Gear Icon (Settings)** in the top right.
+2. Switch to the **MCP** tab to find your connection information.
+3. You will see an **API Key**.
+   > **Note:** This API Key is solely for identifying your user account within this local app. It is **not** related to any paid commercial service.
+4. Copy the MCP configuration and paste it into your AI Agent, or set up Claude Code via command line:
 
 ```bash
 claude mcp add notes-mcp --transport sse http://localhost:31111/mcp/YOUR_API_KEY
 ```
+*(Replace `YOUR_API_KEY` with the key found in the MCP tab)*
 
-> **Note:** Get `YOUR_API_KEY` from **Settings -> MCP** in the web app.
+### 4. Ask Your Agent
 
-### 3. Start Using It!
+Now you can ask your agent to interact with your notes. For example:
 
-Ask your AI agent:
-
-> "Use MCP to write a note of what we have done so far."
+> "Use MCP to write a concise note about what we have done so far."
  
  ## Screenshots
 
@@ -94,14 +104,7 @@ Since this application is built on Docker and Node.js, it runs on all major plat
 - **Windows** (WSL2 / Docker Desktop)
 - **Linux** (amd64 & arm64)
 
-## App Configuration
 
-Everything works out of the box with defaults, but these are the two most important configurations:
-
-| Variable | Description | Default |
-| :--- | :--- | :--- |
-| `PORT` | Local port to access the app | `31111` |
-| `JWT_SECRET` | Secret key for session security | (Generated on startup) |
 
 ## MCP Configuration
 
