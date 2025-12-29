@@ -13,6 +13,10 @@ WORKDIR /app
 # Copy source code
 COPY . .
 
+# Accept build metadata
+ARG BUILD_METADATA
+ENV BUILD_METADATA=${BUILD_METADATA}
+
 # Build Frontend
 RUN npm run build --workspace=frontend
 

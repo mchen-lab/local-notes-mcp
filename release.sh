@@ -2,15 +2,11 @@
 set -e
 
 # Help / Usage
-if [ -z "$1" ]; then
+# (Optional)
+if [ "$1" == "--help" ]; then
     echo "Usage: ./release.sh [patch|minor|major|<version>]"
-    echo ""
-    echo "Examples:"
-    echo "  ./release.sh patch   # 0.1.0 -> 0.1.1"
-    echo "  ./release.sh minor   # 0.1.0 -> 0.2.0"
-    echo "  ./release.sh major   # 0.1.0 -> 1.0.0"
-    echo "  ./release.sh 1.5.0   #       -> 1.5.0"
-    exit 1
+    echo "       ./release.sh           # Re-release current version"
+    exit 0
 fi
 
 BUMP_TYPE=$1
@@ -21,17 +17,21 @@ if [[ -n $(git status -s) ]]; then
     exit 1
 fi
 
-echo "=== 🚀 Starting Release: $BUMP_TYPE ==="
+if [ -z "$BUMP_TYPE" ]; then
+    echo "=== 🚀 Re-Releasing Current Version ==="
+    # Read version from package.json
+    VERSION_NUM=$(node -p "require('./package.json').version")
+    echo "ℹ️  Current version: $VERSION_NUM"
+else
+    echo "=== 🚀 Starting Release: $BUMP_TYPE ==="
+    
+    # 2. Bump root version (only if arg provided)
+    NEW_VERSION=$(npm version $BUMP_TYPE --no-git-tag-version)
+    VERSION_NUM=${NEW_VERSION#v}
+    echo "📝 Bumped root version to $VERSION_NUM"
+fi
 
-# 2. Bump version in root package.json (no-git-tag-version prevents double tagging for now)
-#    We will handle the git commit/tag manually after syncing workspaces
-NEW_VERSION=$(npm version $BUMP_TYPE --no-git-tag-version)
-# Remove 'v' prefix if npm added it, for cleaner usage
-VERSION_NUM=${NEW_VERSION#v}
-
-echo "📝 Bumped root version to $VERSION_NUM"
-
-# 3. Sync version to workspaces manually (using npm version in workspaces)
+# 3. Sync version to workspaces manually
 echo "🔄 Syncing version to workspaces..."
 npm version $VERSION_NUM --workspace=backend --no-git-tag-version --allow-same-version > /dev/null
 npm version $VERSION_NUM --workspace=frontend --no-git-tag-version --allow-same-version > /dev/null
@@ -39,8 +39,16 @@ npm version $VERSION_NUM --workspace=frontend --no-git-tag-version --allow-same-
 # 4. Git Commit and Tag
 echo "📦 Committing and Tagging..."
 git add package.json backend/package.json frontend/package.json
-git commit -m "chore: release v$VERSION_NUM"
-git tag -a "v$VERSION_NUM" -m "Release v$VERSION_NUM"
+
+# Only commit if there are changes
+if ! git diff-index --quiet HEAD; then
+    git commit -m "chore: release v$VERSION_NUM"
+else
+    echo "ℹ️  No changes to commit (version unchanged)."
+fi
+
+# Force tag to move it if it exists (for re-release) or create if missing
+git tag -f -a "v$VERSION_NUM" -m "Release v$VERSION_NUM"
 
 echo "✅ Created local tag: v$VERSION_NUM"
 

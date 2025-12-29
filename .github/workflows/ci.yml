@@ -81,6 +81,10 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest
 
+      - name: Generate build metadata
+        id: date
+        run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@v6
@@ -92,5 +96,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           build-args: |
              BASE_IMAGE=ghcr.io/mchen-lab/local-notes-mcp:base
+             BUILD_METADATA=-prod-${{ steps.date.outputs.date }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

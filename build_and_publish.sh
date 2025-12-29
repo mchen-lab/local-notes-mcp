@@ -33,9 +33,14 @@ echo "Tags:"
 echo "  - $GHCR_IMAGE:$TAG"
 echo "  - $DOCKERHUB_IMAGE:$TAG"
 
+# Generate build metadata (e.g. -dev-20251228)
+BUILD_META="-dev-$(date +%Y%m%d)"
+echo "Build Metadata: $BUILD_META"
+
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
   --build-arg BASE_IMAGE=ghcr.io/mchen-lab/local-notes-mcp:base \
+  --build-arg BUILD_METADATA="$BUILD_META" \
   -t "$GHCR_IMAGE:$TAG" \
   -t "$DOCKERHUB_IMAGE:$TAG" \
   --push \
