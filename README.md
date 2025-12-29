@@ -60,7 +60,7 @@ Now you can ask your agent to interact with your notes. For example:
  *Seamlessly asking your AI agent to read and write notes.*
 
  ### Easy Configuration
- <img src="assets/mcp_config.png" width="400" alt="MCP Config" />
+ <img src="assets/mcp_config.png" width="200" alt="MCP Config" />
  <br/>
  *Simple setup for connecting to Claude, Cursor, and other MCP clients.*
 
