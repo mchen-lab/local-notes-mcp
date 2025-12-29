@@ -22,6 +22,7 @@ if [ -z "$BUMP_TYPE" ]; then
     # Read version from package.json
     VERSION_NUM=$(node -p "require('./package.json').version")
     echo "ℹ️  Current version: $VERSION_NUM"
+    FORCE_RE_RELEASE="true"
 else
     echo "=== 🚀 Starting Release: $BUMP_TYPE ==="
     
@@ -41,23 +42,33 @@ echo "📦 Committing and Tagging..."
 git add package.json backend/package.json frontend/package.json
 
 # Only commit if there are changes
+# We use || true on commit to prevent script aborting if git diff check was false positive or raced
 if ! git diff-index --quiet HEAD; then
-    git commit -m "chore: release v$VERSION_NUM"
+    git commit -m "chore: release v$VERSION_NUM" || echo "⚠️  Nothing to commit."
 else
     echo "ℹ️  No changes to commit (version unchanged)."
 fi
 
-# Force tag to move it if it exists (for re-release) or create if missing
-git tag -f -a "v$VERSION_NUM" -m "Release v$VERSION_NUM"
+TAG_NAME="v$VERSION_NUM"
 
-echo "✅ Created local tag: v$VERSION_NUM"
+# If this is a re-release (no bump arg), we might need to purge the old tag to trigger CI
+if [ "$FORCE_RE_RELEASE" = "true" ]; then
+    echo "🔥 Re-release mode: Removing existing tag '$TAG_NAME' from remote and local..."
+    git push origin --delete "$TAG_NAME" || echo "   (Remote tag didn't exist or failed to delete)"
+    git tag -d "$TAG_NAME" || echo "   (Local tag didn't exist)"
+fi
+
+# Create tag (force not strictly needed if we deleted, but good for safety)
+git tag -f -a "$TAG_NAME" -m "Release $TAG_NAME"
+
+echo "✅ Created local tag: $TAG_NAME"
 
 # 5. Push to Remote
 echo "⬆️  Pushing to origin..."
-git push origin main --follow-tags
+git push origin main
+git push origin "$TAG_NAME"
 
 echo ""
-echo "🎉 Release v$VERSION_NUM completed successfully!"
+echo "🎉 Release $TAG_NAME completed successfully!"
 echo "   - package.json files updated"
-echo "   - Git tag pushed"
-echo "   - GitHub Action should now trigger automatically"
+echo "   - Git tag pushed (CI should trigger)"
