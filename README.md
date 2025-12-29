@@ -41,12 +41,7 @@ Since this is a multi-user web app, you first need to create a user account.
 2. Switch to the **MCP** tab to find your connection information.
 3. You will see an **API Key**.
    > **Note:** This API Key is solely for identifying your user account within this local app. It is **not** related to any paid commercial service.
-4. Copy the MCP configuration and paste it into your AI Agent, or set up Claude Code via command line:
-
-```bash
-claude mcp add notes-mcp --transport sse http://localhost:31111/mcp/YOUR_API_KEY
-```
-*(Replace `YOUR_API_KEY` with the key found in the MCP tab)*
+4. Copy the MCP configuration and paste it into your AI Agent's MCP config, or set up Claude Code via command line:
 
 ### 4. Ask Your Agent
 
@@ -110,11 +105,20 @@ Since this application is built on Docker and Node.js, it runs on all major plat
 
 This application acts as an MCP Server.
 
-**Supported & Tested on:**
-- **Claude Code**: Stdio and SSE supported.
-- **Cursor**: Stdio and SSE supported.
-- **Antigravity**: Stdio supported.
-- **Other Clients**: Most MCP clients should work with the SSE endpoint.
+### Setup Recommendations
+
+1.  **Use SSE Config First**: We recommend using the SSE transport URL (`http://localhost:31111/mcp/YOUR_API_KEY`) whenever possible.
+2.  **Stdio Fallback**: If SSE is not working for your client, use Stdio.
+
+> **Windows Users**: Use SSE if possible. If you need to use Stdio, you must install **Node.js** so that the `npx` command becomes available.
+
+### Client Support & Known Issues
+
+- **Antigravity**: Does not support SSE right now. You must use Stdio.
+- **Cursor**: Supports both SSE and Stdio.
+- **Claude Code**: Supports both SSE and Stdio.
+- **Other Clients**: Most should work with the SSE endpoint.
+
 
 
 ## Project Structure
@@ -145,7 +149,12 @@ local-notes-mcp/
  ```
  
  ### Can I connect to the server from another computer?
- Yes, you can connect to the server from another computer on the same local network using the server's IP address. However, note that **connecting via VPN or complex network setups might cause instability** with some MCP clients due to timeouts. If you experience issues, try connecting from the same machine or ensure a stable direct local connection.
+ Yes, you can connect to the server from another computer on the same local network using the server's IP address.
+
+For example, if your host computer's IP is `192.168.68.16`, you can access the app from another device at:
+`http://192.168.68.16:31111`
+
+**Note:** Connecting via VPN or complex network setups might cause instability with some MCP clients due to timeouts. If you experience issues, try connecting from the same machine or ensure a stable direct local connection.
  
  ## License
 
