@@ -48,6 +48,33 @@ Since this is a multi-user web app, you first need to create a user account.
 Now you can ask your agent to interact with your notes. For example:
 
 > "Use MCP to write a concise note about what we have done so far."
+
+## Local Development (No Docker)
+
+If you prefer to run the app locally without Docker or want to modify the code:
+
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/mchen-lab/local-notes-mcp.git
+    cd local-notes-mcp
+    ```
+
+2.  **Install Dependencies**:
+    ```bash
+    npm install
+    ```
+
+3.  **Start the App**:
+    ```bash
+    ./restart.sh
+    ```
+    This script handles everything for you:
+    *   Checks for dependencies
+    *   Clears port 31111 if used
+    *   Starts the backend and frontend in development mode
+    *   Tails the logs automatically
+
+    The app will be running at [http://localhost:31111](http://localhost:31111).
  
  ## Screenshots
 
