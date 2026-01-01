@@ -17,6 +17,27 @@ if [[ -n $(git status -s) ]]; then
     exit 1
 fi
 
+# 2. Ensure we're on the main branch
+CURRENT_BRANCH=$(git branch --show-current)
+if [ "$CURRENT_BRANCH" != "main" ]; then
+    echo "❌ Error: You must be on the 'main' branch to release. Currently on '$CURRENT_BRANCH'."
+    exit 1
+fi
+
+# 3. Ensure local main is up-to-date with remote
+echo "🔄 Fetching latest from origin..."
+git fetch origin main
+LOCAL_COMMIT=$(git rev-parse HEAD)
+REMOTE_COMMIT=$(git rev-parse origin/main)
+
+if [ "$LOCAL_COMMIT" != "$REMOTE_COMMIT" ]; then
+    echo "❌ Error: Local 'main' is not in sync with 'origin/main'."
+    echo "   Local:  $LOCAL_COMMIT"
+    echo "   Remote: $REMOTE_COMMIT"
+    echo "   Please run 'git pull' or 'git push' first."
+    exit 1
+fi
+
 if [ -z "$BUMP_TYPE" ]; then
     echo "=== 🚀 Re-Releasing Current Version ==="
     # Read version from package.json
