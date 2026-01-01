@@ -26,6 +26,8 @@ docker run -d \
   ghcr.io/mchen-lab/local-notes-mcp:latest
 ```
 
+> **Note:** You can also use the Docker Hub image: `docker.io/xychenmsn/local-notes-mcp:latest`
+
 
 
 ### 2. Create User & Login
