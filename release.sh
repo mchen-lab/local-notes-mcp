@@ -60,7 +60,7 @@ npm version $VERSION_NUM --workspace=frontend --no-git-tag-version --allow-same-
 
 # 4. Git Commit and Tag
 echo "📦 Committing and Tagging..."
-git add package.json backend/package.json frontend/package.json
+git add package.json package-lock.json backend/package.json frontend/package.json
 
 # Only commit if there are changes
 # We use || true on commit to prevent script aborting if git diff check was false positive or raced
