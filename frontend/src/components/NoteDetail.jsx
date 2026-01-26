@@ -465,6 +465,17 @@ export default function NoteDetail({
                  <ArrowLeft className="h-5 w-5" />
                </Button>
             )}
+             {onToggleFullScreen && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={onToggleFullScreen}
+                  className="hidden md:flex"
+                  title={isFullScreen ? "Exit Full Screen" : "Enter Full Screen"}
+                >
+                  {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+                </Button>
+             )}
              <div className="flex flex-col">
                 <span className="text-sm font-medium leading-none">
                     View Mode 
@@ -512,17 +523,6 @@ export default function NoteDetail({
                  )}
                </DropdownMenuContent>
              </DropdownMenu>
-             {onToggleFullScreen && (
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={onToggleFullScreen}
-                  className="hidden md:flex ml-2"
-                  title={isFullScreen ? "Exit Full Screen" : "Enter Full Screen"}
-                >
-                  {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
-                </Button>
-             )}
           </div>
         </div>
 
@@ -593,6 +593,17 @@ export default function NoteDetail({
          )}
          
          <div className={`flex items-center gap-2 flex-1 min-w-0 ${hasNewVersion ? "mt-8" : ""}`}>
+            {onToggleFullScreen && (
+               <Button 
+                 variant="ghost" 
+                 size="icon" 
+                 onClick={onToggleFullScreen}
+                 className="hidden md:flex"
+                 title={isFullScreen ? "Exit Full Screen" : "Enter Full Screen"}
+               >
+                 {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+               </Button>
+            )}
             <Input 
               value={title} 
               onChange={e => setTitle(e.target.value)} 
@@ -605,17 +616,6 @@ export default function NoteDetail({
              <Button size="sm" onClick={handleSave} className="gap-2">
                <Save className="h-4 w-4" /> Save
              </Button>
-             {onToggleFullScreen && (
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={onToggleFullScreen}
-                  className="hidden md:flex"
-                  title={isFullScreen ? "Exit Full Screen" : "Enter Full Screen"}
-                >
-                  {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
-                </Button>
-             )}
          </div>
       </div>
 
