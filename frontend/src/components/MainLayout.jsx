@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Menu, ChevronLeft, ChevronRight } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+
+const SIDEBAR_COLLAPSED_KEY = "local-notes-mcp:sidebarCollapsed";
 
 export default function MainLayout({ 
   children, 
@@ -13,16 +15,45 @@ export default function MainLayout({
   isFullScreen = false
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true';
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(isSidebarCollapsed));
+  }, [isSidebarCollapsed]);
+
+  const toggleSidebar = () => setIsSidebarCollapsed(prev => !prev);
 
   return (
     <div className={cn("flex h-screen w-full bg-background overflow-hidden", className)}>
       {/* Desktop Sidebar */}
-      {/* Desktop Sidebar */}
       <aside className={cn(
-        "hidden w-[350px] flex-col border-r bg-muted/10 print:hidden",
-        !isFullScreen && "md:flex"
+        "hidden flex-col border-r bg-muted/10 print:hidden transition-all duration-300 ease-in-out relative",
+        !isFullScreen && "md:flex",
+        isSidebarCollapsed ? "w-[48px]" : "w-[350px]"
       )}>
-        {sidebar}
+        {React.isValidElement(sidebar) 
+          ? React.cloneElement(sidebar, { isCollapsed: isSidebarCollapsed }) 
+          : sidebar}
+        
+        {/* Collapse Toggle Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 h-6 w-6 rounded-full border bg-background shadow-sm hover:bg-accent hidden md:flex"
+          title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {isSidebarCollapsed ? (
+            <ChevronRight className="h-3 w-3" />
+          ) : (
+            <ChevronLeft className="h-3 w-3" />
+          )}
+        </Button>
       </aside>
 
       {/* Mobile Sidebar (Drawer) - For Detail View */}

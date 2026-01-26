@@ -6,6 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { 
   Settings, 
   Search, 
@@ -23,7 +29,8 @@ import {
   CheckSquare,
   X,
   MousePointer2,
-  ArrowUp
+  ArrowUp,
+  ExternalLink
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -62,8 +69,13 @@ export default function SidebarContent({
   onBatchDelete,
   onBatchFavorite,
   onBatchExport,
-  onBatchMerge
+  onBatchMerge,
+  isCollapsed = false
 }) {
+  // Handle opening note in new tab
+  const openInNewTab = (noteId) => {
+    window.open(`/note/${noteId}`, '_blank');
+  };
   // Extract tags from text
   const extractTags = (text) => {
     if (!text) return [];
@@ -174,6 +186,20 @@ export default function SidebarContent({
       setCollapsedMonths(new Set(monthKeys));
     }
   };
+
+  // Collapsed view - show only icons
+  if (isCollapsed) {
+    return (
+      <div className="flex flex-col h-full bg-sidebar-background text-sidebar-foreground items-center py-4 gap-2">
+        <Button variant="ghost" size="icon" onClick={onAdd} className="h-10 w-10 text-muted-foreground hover:text-foreground" title="New Note">
+          <Plus className="h-5 w-5" />
+        </Button>
+        <Button variant="ghost" size="icon" onClick={onOpenSettings} className="h-10 w-10 text-muted-foreground hover:text-foreground" title="Settings">
+          <Settings className="h-5 w-5" />
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-sidebar-background text-sidebar-foreground">
@@ -342,81 +368,91 @@ export default function SidebarContent({
               // It's a note
               const note = item.note;
               return (
-                <div className="px-2 pb-1"> 
-                    <div
-                      onClick={() => {
-                        if (isSelectionMode) {
-                            toggleSelected(note.id);
-                        } else {
-                            onSelect(note.id);
-                            if (onMobileClose) onMobileClose();
-                        }
-                      }}
-                      className={cn(
-                        "group flex flex-col gap-2 rounded-lg p-3 text-sm transition-colors cursor-pointer hover:bg-accent hover:text-accent-foreground",
-                        selectedId === note.id ? "bg-accent text-accent-foreground" : "text-muted-foreground"
-                      )}
-                    >
-                      <div className="flex items-center justify-between font-semibold text-foreground">
-                        <div className="flex items-center gap-2 overflow-hidden">
-                            {isSelectionMode && (
-                                <div className={cn(
-                                    "flex h-4 w-4 shrink-0 items-center justify-center rounded border border-primary ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
-                                    selectedIds.has(note.id) ? "bg-primary text-primary-foreground" : "opacity-50"
-                                )}>
-                                    {selectedIds.has(note.id) && <CheckSquare className="h-3 w-3" />}
-                                </div>
-                            )}
-                            <span className="break-words">{note.title || "Untitled"}</span>
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onToggleFavorite(note.id);
+                <ContextMenu key={note.id}>
+                  <ContextMenuTrigger asChild>
+                    <div className="px-2 pb-1"> 
+                        <div
+                          onClick={() => {
+                            if (isSelectionMode) {
+                                toggleSelected(note.id);
+                            } else {
+                                onSelect(note.id);
+                                if (onMobileClose) onMobileClose();
+                            }
                           }}
-                          className="p-1 rounded hover:bg-secondary/80 transition-colors flex-shrink-0"
-                          title={note.favorite ? "Remove from favorites" : "Add to favorites"}
+                          className={cn(
+                            "group flex flex-col gap-2 rounded-lg p-3 text-sm transition-colors cursor-pointer hover:bg-accent hover:text-accent-foreground",
+                            selectedId === note.id ? "bg-accent text-accent-foreground" : "text-muted-foreground"
+                          )}
                         >
-                          <Star 
-                            className={cn(
-                              "h-4 w-4 transition-colors",
-                              note.favorite 
-                                ? "fill-yellow-400 text-yellow-400" 
-                                : "text-muted-foreground/40 hover:text-muted-foreground"
-                            )} 
-                          />
-                        </button>
-                      </div>
+                          <div className="flex items-center justify-between font-semibold text-foreground">
+                            <div className="flex items-center gap-2 overflow-hidden">
+                                {isSelectionMode && (
+                                    <div className={cn(
+                                        "flex h-4 w-4 shrink-0 items-center justify-center rounded border border-primary ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
+                                        selectedIds.has(note.id) ? "bg-primary text-primary-foreground" : "opacity-50"
+                                    )}>
+                                        {selectedIds.has(note.id) && <CheckSquare className="h-3 w-3" />}
+                                    </div>
+                                )}
+                                <span className="break-words">{note.title || "Untitled"}</span>
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onToggleFavorite(note.id);
+                              }}
+                              className="p-1 rounded hover:bg-secondary/80 transition-colors flex-shrink-0"
+                              title={note.favorite ? "Remove from favorites" : "Add to favorites"}
+                            >
+                              <Star 
+                                className={cn(
+                                  "h-4 w-4 transition-colors",
+                                  note.favorite 
+                                    ? "fill-yellow-400 text-yellow-400" 
+                                    : "text-muted-foreground/40 hover:text-muted-foreground"
+                                )} 
+                              />
+                            </button>
+                          </div>
 
-                      <div className="flex items-center gap-2 text-xs opacity-60 mt-1">
-                        <span>{formatDateShort(note.createdAt, groupBy)}</span>
-                        
-                        {/* Tags Display */}
-                        {(() => {
-                           const tags = extractTags(note.content || "");
-                           if (tags.length === 0) return null;
-                           // Show up to 3 tags
-                           const displayTags = tags.slice(0, 3);
-                           const hasMore = tags.length > 3;
-                           
-                           return (
-                             <div className="flex items-center gap-1 ml-auto overflow-hidden">
-                                {displayTags.map(tag => {
-                                   // Truncate tag to 10 characters max
-                                   const displayTag = tag.length > 10 ? tag.slice(0, 10) + '…' : tag;
-                                   return (
-                                      <span key={tag} className="inline-flex items-center rounded-sm bg-primary/10 px-1 py-0.5 text-[10px] font-medium text-primary" title={tag}>
-                                         {displayTag}
-                                      </span>
-                                   );
-                                })}
-                                {hasMore && <span className="text-[10px] opacity-70">+{tags.length - 3}</span>}
-                             </div>
-                           );
-                        })()}
-                      </div>
+                          <div className="flex items-center gap-2 text-xs opacity-60 mt-1">
+                            <span>{formatDateShort(note.createdAt, groupBy)}</span>
+                            
+                            {/* Tags Display */}
+                            {(() => {
+                               const tags = extractTags(note.content || "");
+                               if (tags.length === 0) return null;
+                               // Show up to 3 tags
+                               const displayTags = tags.slice(0, 3);
+                               const hasMore = tags.length > 3;
+                               
+                               return (
+                                 <div className="flex items-center gap-1 ml-auto overflow-hidden">
+                                    {displayTags.map(tag => {
+                                       // Truncate tag to 10 characters max
+                                       const displayTag = tag.length > 10 ? tag.slice(0, 10) + '…' : tag;
+                                       return (
+                                          <span key={tag} className="inline-flex items-center rounded-sm bg-primary/10 px-1 py-0.5 text-[10px] font-medium text-primary" title={tag}>
+                                             {displayTag}
+                                          </span>
+                                       );
+                                    })}
+                                    {hasMore && <span className="text-[10px] opacity-70">+{tags.length - 3}</span>}
+                                 </div>
+                               );
+                            })()}
+                          </div>
+                        </div>
                     </div>
-                </div>
+                  </ContextMenuTrigger>
+                  <ContextMenuContent className="w-48">
+                    <ContextMenuItem onClick={() => openInNewTab(note.id)} className="gap-2 cursor-pointer">
+                      <ExternalLink className="h-4 w-4" />
+                      Open in New Tab
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
               );
           };
 
