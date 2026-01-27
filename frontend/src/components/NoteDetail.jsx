@@ -245,6 +245,20 @@ export default function NoteDetail({
     };
   }, [isDragging]);
 
+  // Handle Escape key to cancel editing
+  useEffect(() => {
+    if (!isEditing) return;
+    
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleCancel();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isEditing, title, content]); // Include title/content for dirty check in handleCancel
 
   const handleSave = () => {
     if (!title.trim() || !content.trim()) {
