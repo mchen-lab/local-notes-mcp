@@ -10,6 +10,7 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { 
@@ -30,7 +31,8 @@ import {
   X,
   MousePointer2,
   ArrowUp,
-  ExternalLink
+  ExternalLink,
+  Pencil
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -447,9 +449,31 @@ export default function SidebarContent({
                     </div>
                   </ContextMenuTrigger>
                   <ContextMenuContent className="w-48">
+                    <ContextMenuItem 
+                      onClick={() => {
+                        onSelect(note.id);
+                        if (onMobileClose) onMobileClose();
+                      }} 
+                      className="gap-2 cursor-pointer"
+                    >
+                      <Pencil className="h-4 w-4" />
+                      Edit
+                    </ContextMenuItem>
                     <ContextMenuItem onClick={() => openInNewTab(note.id)} className="gap-2 cursor-pointer">
                       <ExternalLink className="h-4 w-4" />
                       Open in New Tab
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={() => onToggleFavorite(note.id)} className="gap-2 cursor-pointer">
+                      <Star className={cn("h-4 w-4", note.favorite && "fill-yellow-400 text-yellow-400")} />
+                      {note.favorite ? "Remove from Favorites" : "Add to Favorites"}
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem 
+                      onClick={() => onBatchDelete && onBatchDelete([note.id])} 
+                      className="gap-2 cursor-pointer text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete
                     </ContextMenuItem>
                   </ContextMenuContent>
                 </ContextMenu>
