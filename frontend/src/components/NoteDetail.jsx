@@ -36,6 +36,7 @@ import MermaidBlock from "./MermaidBlock";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { MarkdownToolbar } from "@/components/MarkdownToolbar";
 import { uploadImage } from "@/utils/upload";
+import copy from "copy-to-clipboard";
 
 // Reusable code block component with syntax highlighting and copy button
 function CodeBlock({ inline, className, children }) {
@@ -47,13 +48,11 @@ function CodeBlock({ inline, className, children }) {
   const isDarkMode = typeof document !== 'undefined' && 
     document.documentElement.classList.contains('dark');
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(codeString);
+  const handleCopy = () => {
+    const success = copy(codeString);
+    if (success) {
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
     }
   };
   
