@@ -37,39 +37,87 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import { MarkdownToolbar } from "@/components/MarkdownToolbar";
 import { uploadImage } from "@/utils/upload";
 
-// Reusable code block component with syntax highlighting
+// Reusable code block component with syntax highlighting and copy button
 function CodeBlock({ inline, className, children }) {
+  const [isCopied, setIsCopied] = React.useState(false);
   const match = /language-(\w+)/.exec(className || "");
   const codeString = String(children).replace(/\n$/, "");
   
   // Detect dark mode from document
   const isDarkMode = typeof document !== 'undefined' && 
     document.documentElement.classList.contains('dark');
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(codeString);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
   
   // Handle Mermaid diagrams
   if (!inline && match && match[1] === "mermaid") {
     return <MermaidBlock chart={codeString} />;
   }
   
-  // Syntax highlighted code block
+  // Syntax highlighted code block with copy button
   if (!inline && match) {
     return (
-      <SyntaxHighlighter
-        style={isDarkMode ? oneDark : oneLight}
-        language={match[1]}
-        PreTag="div"
-        customStyle={{
-          margin: '1rem 0',
-          borderRadius: '0.5rem',
-          fontSize: '0.875rem',
-        }}
-      >
-        {codeString}
-      </SyntaxHighlighter>
+      <div className="relative group">
+        <button
+          onClick={handleCopy}
+          className="absolute right-2 top-2 p-1.5 rounded-md bg-background/80 hover:bg-background border border-border/50 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+          title="Copy code"
+        >
+          {isCopied ? (
+            <Check className="h-4 w-4 text-green-500" />
+          ) : (
+            <Copy className="h-4 w-4 text-muted-foreground" />
+          )}
+        </button>
+        <SyntaxHighlighter
+          style={isDarkMode ? oneDark : oneLight}
+          language={match[1]}
+          PreTag="div"
+          customStyle={{
+            margin: '1rem 0',
+            borderRadius: '0.5rem',
+            fontSize: '0.875rem',
+          }}
+        >
+          {codeString}
+        </SyntaxHighlighter>
+      </div>
+    );
+  }
+
+  // Code block without language (still add copy button)
+  if (!inline) {
+    return (
+      <div className="relative group">
+        <button
+          onClick={handleCopy}
+          className="absolute right-2 top-2 p-1.5 rounded-md bg-background/80 hover:bg-background border border-border/50 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+          title="Copy code"
+        >
+          {isCopied ? (
+            <Check className="h-4 w-4 text-green-500" />
+          ) : (
+            <Copy className="h-4 w-4 text-muted-foreground" />
+          )}
+        </button>
+        <pre className="bg-muted p-4 rounded-lg overflow-x-auto my-4">
+          <code className="text-sm font-mono">
+            {children}
+          </code>
+        </pre>
+      </div>
     );
   }
   
-  // Inline code or code without language
+  // Inline code
   return (
     <code className={`${className || ''} bg-muted px-1.5 py-0.5 rounded text-sm font-mono`}>
       {children}
