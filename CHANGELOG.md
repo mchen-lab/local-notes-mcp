@@ -7,19 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-01-26
+
 ### Added
-- Initial public release
-- Note creation, editing, and deletion with Markdown support
-- Multi-user authentication system
-- MCP (Model Context Protocol) integration with SSE transport
-- API key authentication for MCP connections
-- Docker support with web and MCP modes
-- Hot reload development environment
-- Mermaid.js diagram rendering
-- Favorite notes feature
-- Admin panel for user management
-- Responsive mobile design
-- SQLite database for persistence
+- **Collapsible Sidebar (Desktop)** - Toggle button to collapse/expand sidebar, state persisted in localStorage
+- **Right-Click Context Menu** - Context menu on note items with Edit, Open in New Tab, Bump to Top, Favorites, and Delete actions
+- **Bump to Top** - Move notes to top of list by updating timestamps
+- **Code Block Copy Button** - Hover to reveal copy button on fenced code blocks in view mode
+- **Escape Key to Cancel Edit** - Press Escape in edit mode to cancel (with unsaved changes prompt)
+
+### Changed
+- Moved fullscreen toggle button to left side of "View Mode" label for better visibility
 
 ## [0.1.0] - 2025-12-17
 
