@@ -58,6 +58,7 @@ export default function SidebarContent({
   notes,
   selectedId,
   onSelect,
+  onEditNote,
   onAdd,
   searchTerm,
   onSearchChange,
@@ -451,7 +452,11 @@ export default function SidebarContent({
                   <ContextMenuContent className="w-48">
                     <ContextMenuItem 
                       onClick={() => {
-                        onSelect(note.id);
+                        if (onEditNote) {
+                          onEditNote(note.id);
+                        } else {
+                          onSelect(note.id);
+                        }
                         if (onMobileClose) onMobileClose();
                       }} 
                       className="gap-2 cursor-pointer"

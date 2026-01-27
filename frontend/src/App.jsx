@@ -663,6 +663,36 @@ export default function App() {
       setMobileView("detail");
   };
 
+  const handleEditNote = (id) => {
+      // Same navigation guard logic as handleNoteSelect
+      if (isUnsaved) {
+         setConfirmDialog({
+            open: true,
+            title: "Unsaved Changes",
+            description: "You have unsaved changes. Are you sure you want to discard them?",
+            onConfirm: () => {
+                setIsUnsaved(false);
+                if (selectedId === "new") {
+                    setNotes(prev => prev.filter(n => n.id !== "new"));
+                }
+                setSelectedId(id);
+                setAutoEdit(true);
+                setMobileView("detail");
+                setConfirmDialog(prev => ({ ...prev, open: false }));
+            }
+         });
+         return;
+      }
+      
+      if (selectedId === "new") {
+          setNotes(prev => prev.filter(n => n.id !== "new"));
+      }
+
+      setSelectedId(id);
+      setAutoEdit(true);
+      setMobileView("detail");
+  };
+
   const handleBackToList = () => {
       setMobileView("list");
   };
@@ -724,6 +754,7 @@ export default function App() {
             notes={filteredNotes}
             selectedId={selectedId}
             onSelect={handleNoteSelect}
+            onEditNote={handleEditNote}
             onAdd={addNote}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
