@@ -527,6 +527,16 @@ export default function App() {
       });
   }
 
+  function handleBumpNote(id) {
+      fetch(`/api/notes/${id}/bump`, { method: "POST" })
+        .then(r => r.json())
+        .then(updated => {
+            if (updated && !updated.error) {
+                setNotes(prev => prev.map(n => n.id === id ? updated : n));
+            }
+        });
+  }
+
   function handleBatchExport(ids) {
       if (!ids || ids.length === 0) return;
       const notesToExport = notes.filter(n => ids.includes(n.id));
@@ -767,6 +777,7 @@ export default function App() {
             onBatchFavorite={handleBatchFavorite}
             onBatchExport={handleBatchExport}
             onBatchMerge={handleBatchMerge}
+            onBumpNote={handleBumpNote}
           />
         }
       >

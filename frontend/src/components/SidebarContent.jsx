@@ -32,7 +32,8 @@ import {
   MousePointer2,
   ArrowUp,
   ExternalLink,
-  Pencil
+  Pencil,
+  ArrowUpToLine
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -73,6 +74,7 @@ export default function SidebarContent({
   onBatchFavorite,
   onBatchExport,
   onBatchMerge,
+  onBumpNote,
   isCollapsed = false
 }) {
   // Handle opening note in new tab
@@ -467,6 +469,10 @@ export default function SidebarContent({
                     <ContextMenuItem onClick={() => openInNewTab(note.id)} className="gap-2 cursor-pointer">
                       <ExternalLink className="h-4 w-4" />
                       Open in New Tab
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={() => onBumpNote && onBumpNote(note.id)} className="gap-2 cursor-pointer">
+                      <ArrowUpToLine className="h-4 w-4" />
+                      Bump to Top
                     </ContextMenuItem>
                     <ContextMenuItem onClick={() => onToggleFavorite(note.id)} className="gap-2 cursor-pointer">
                       <Star className={cn("h-4 w-4", note.favorite && "fill-yellow-400 text-yellow-400")} />

@@ -9,6 +9,7 @@ import {
   updateNote,
   deleteNote,
   toggleFavorite,
+  bumpNote,
   getUserById,
   deleteAllNotesForUser,
   importNote,
@@ -187,6 +188,14 @@ router.post("/:id/toggle-favorite", (req, res) => {
   const id = Number(req.params.id);
   const userId = getUserId(req);
   const note = toggleFavorite(id, userId);
+  if (!note) return res.status(404).json({ error: "Not found" });
+  res.json(note);
+});
+
+router.post("/:id/bump", (req, res) => {
+  const id = Number(req.params.id);
+  const userId = getUserId(req);
+  const note = bumpNote(id, userId);
   if (!note) return res.status(404).json({ error: "Not found" });
   res.json(note);
 });

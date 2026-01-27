@@ -491,3 +491,18 @@ export function importNote(userId, { title, content, createdAt, updatedAt, favor
   const info = stmt.run(title, content, created, updated, userParam, fav);
   return getNote(info.lastInsertRowid, userId);
 }
+
+export function bumpNote(id, userId) {
+  const existing = getNote(id, userId);
+  if (!existing) return null;
+  
+  const now = new Date().toISOString();
+  const { sql: userSql, params: userParams } = getUserFilter(userId);
+
+  const stmt = db.prepare(
+    `UPDATE notes SET created_at = ?, updated_at = ? WHERE id = ? AND ${userSql}`
+  );
+  stmt.run(now, now, id, ...userParams);
+
+  return getNote(id, userId);
+}
