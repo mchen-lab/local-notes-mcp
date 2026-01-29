@@ -41,10 +41,17 @@ import { uploadImage } from "@/utils/upload";
 import copy from "copy-to-clipboard";
 
 // Reusable code block component with syntax highlighting and copy button
-function CodeBlock({ inline, className, children }) {
+function CodeBlock({ inline, className, children, node }) {
   const [isCopied, setIsCopied] = React.useState(false);
   const match = /language-(\w+)/.exec(className || "");
   const codeString = String(children).replace(/\n$/, "");
+  
+  // More reliable check for inline vs block code:
+  // - If explicitly marked inline, it's inline
+  // - If content has newlines, it's definitely a block
+  // - If it has a language class, it's likely a block
+  const hasNewlines = codeString.includes('\n');
+  const isBlock = !inline || hasNewlines || match;
   
   // Detect dark mode from document
   const isDarkMode = typeof document !== 'undefined' && 
@@ -59,14 +66,14 @@ function CodeBlock({ inline, className, children }) {
   };
   
   // Handle Mermaid diagrams
-  if (!inline && match && match[1] === "mermaid") {
+  if (isBlock && match && match[1] === "mermaid") {
     return <MermaidBlock chart={codeString} />;
   }
   
   // Syntax highlighted code block with copy button
-  if (!inline && match) {
+  if (isBlock && match) {
     return (
-      <div className="relative group">
+      <div className="relative group not-prose">
         <button
           onClick={handleCopy}
           className="absolute right-2 top-2 p-1.5 rounded-md bg-background/80 hover:bg-background border border-border/50 opacity-0 group-hover:opacity-100 transition-opacity z-10"
@@ -95,9 +102,9 @@ function CodeBlock({ inline, className, children }) {
   }
 
   // Code block without language (still add copy button)
-  if (!inline) {
+  if (isBlock) {
     return (
-      <div className="relative group">
+      <div className="relative group not-prose">
         <button
           onClick={handleCopy}
           className="absolute right-2 top-2 p-1.5 rounded-md bg-background/80 hover:bg-background border border-border/50 opacity-0 group-hover:opacity-100 transition-opacity z-10"
@@ -124,6 +131,13 @@ function CodeBlock({ inline, className, children }) {
       {children}
     </code>
   );
+}
+
+// Custom paragraph handler to avoid nesting block elements inside <p>
+// This fixes the "p cannot contain div/pre" hydration error
+// We always use div styled as a paragraph since detecting all nested block elements is unreliable
+function Paragraph({ children }) {
+  return <div className="markdown-paragraph my-3">{children}</div>;
 }
 
 // Helper to extract tags
@@ -604,7 +618,7 @@ export default function NoteDetail({
             setShowBackToTop(scrollTop > 300);
           }}
         >
-            <div className="w-full">
+            <div className="w-full min-w-0 overflow-hidden">
               <h1 className="text-3xl font-bold mb-6 break-words">{title || "Untitled"}</h1>
               <TagList text={content} onTagClick={onSearchTag} />
               <Separator className="my-6" />
@@ -613,7 +627,11 @@ export default function NoteDetail({
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeRaw, [rehypeSanitize, defaultSchema]]}
                   components={{
-                    code: CodeBlock
+                    code: CodeBlock,
+                    // Handle pre blocks to avoid nesting issues - just pass through children
+                    pre: ({ children }) => <>{children}</>,
+                    // Handle paragraphs that contain block elements
+                    p: Paragraph
                   }}
                 >
                   {content}
@@ -737,7 +755,11 @@ export default function NoteDetail({
                       remarkPlugins={[remarkGfm]}
                       rehypePlugins={[rehypeRaw, [rehypeSanitize, defaultSchema]]}
                       components={{
-                        code: CodeBlock
+                        code: CodeBlock,
+                        // Handle pre blocks to avoid nesting issues - just pass through children
+                        pre: ({ children }) => <>{children}</>,
+                        // Handle paragraphs that contain block elements
+                        p: Paragraph
                       }}
                     >
                       {content}
