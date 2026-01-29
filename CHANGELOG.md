@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-01-29
+
+### Fixed
+- **Responsive Text Wrapping** - Notes content now wraps properly at narrow window widths (desktop and mobile). Fixed by overriding Radix ScrollArea's `display: table` viewport behavior that prevented content from respecting container width constraints.
+- **Hydration Error** - Fixed React hydration error where `<div>` and `<pre>` elements were incorrectly nested inside `<p>` tags. The `rehype-raw` plugin (added for `<br>` support) made this edge case more likely to trigger.
+
 ## [0.1.4] - 2026-01-28
 
 ### Added
@@ -63,6 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
+- **0.1.5** - Responsive text wrapping and hydration error fixes
 - **0.1.4** - Table `<br>` support and Docker build fixes
 - **0.1.3** - Desktop UI enhancements (sidebar, context menu, code copy)
 - **0.1.2** - Release tooling improvements
