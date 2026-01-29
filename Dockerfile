@@ -13,6 +13,9 @@ WORKDIR /app
 # Copy source code
 COPY . .
 
+# Ensure all dependencies are up to date (including newly added ones)
+RUN npm install
+
 # Accept build metadata
 ARG BUILD_METADATA
 ENV BUILD_METADATA=${BUILD_METADATA}

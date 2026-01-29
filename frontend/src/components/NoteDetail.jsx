@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import TextareaAutosize from 'react-textarea-autosize';
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark, oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Button } from "@/components/ui/button";
@@ -165,6 +167,12 @@ function TagList({ text, onTagClick }) {
     </div>
   );
 }
+
+// Custom sanitation schema to allow <br> explicitly if needed, although default usually includes it.
+// We'll use the default schema as base.
+const sanitizeSchema = {
+  ...defaultSchema,
+};
 
 export default function NoteDetail({ 
   note, 
@@ -603,6 +611,7 @@ export default function NoteDetail({
               <div className="markdown-body">
                 <ReactMarkdown 
                   remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw, [rehypeSanitize, defaultSchema]]}
                   components={{
                     code: CodeBlock
                   }}
@@ -726,6 +735,7 @@ export default function NoteDetail({
                  <div className="markdown-body">
                     <ReactMarkdown 
                       remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeRaw, [rehypeSanitize, defaultSchema]]}
                       components={{
                         code: CodeBlock
                       }}

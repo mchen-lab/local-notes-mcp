@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-01-28
+
+### Added
+- **`<br>` Support in Tables** - Enabled manual line breaks in Markdown table cells using `rehype-raw` and `rehype-sanitize`
+
+### Fixed
+- **Docker Build Dependencies** - Updated Dockerfile to ensure new dependencies are installed during the build process
+
 ## [0.1.3] - 2026-01-26
 
 ### Added
@@ -55,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
+- **0.1.4** - Table `<br>` support and Docker build fixes
 - **0.1.3** - Desktop UI enhancements (sidebar, context menu, code copy)
 - **0.1.2** - Release tooling improvements
 - **0.1.1** - Version display and MCP config consolidation
